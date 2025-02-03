@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import "../../App.css"
 const Dashboard = () => {
+  const location = useLocation();
+  const { id } = useParams();
+  const username = location.state?.username || 'User';
   return (
     <>
       <div className='dashboard flex'>
@@ -8,6 +11,10 @@ const Dashboard = () => {
           <Link to="/">
             <button>Log Out</button>
           </Link>
+        </div>
+        <div>
+          <h1>Welcome to your Dashboard, {username}!</h1>
+          <p>Your ID: {id}</p>
         </div>
       </div>
 

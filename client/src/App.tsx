@@ -10,18 +10,21 @@ import {
 import './App.css'
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <div><Login/></div>
-  },
-  {
-    path: "/register",
-    element: <div><Register/></div>
-  },
-  {
-    path: "/dashboard",
-    element: <div><Dashboard/></div>
-  },
+  { path: "/", element: <Login /> },
+  { path: "/register", element: <Register /> },
+  { path: "/dashboard/:id", element: <Dashboard /> },
+  // {
+  //   path: "/",
+  //   element: <div><Login/></div>
+  // },
+  // {
+  //   path: "/register",
+  //   element: <div><Register/></div>
+  // },
+  // {
+  //   path: "/dashboard",
+  //   element: <div><Dashboard/></div>
+  // },
 ])
 function App() {
 

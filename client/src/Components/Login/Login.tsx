@@ -34,20 +34,28 @@ const Login = () => {
       LoginUserName: loginUserName,
       LoginPassword: loginPassword
     }). then((response)=>{
-      console.log(response.data.message)
-      //I want to catch the response first  - we have data successfully from the database and we can catch an error if the credentails are wrong
-      // if(LoginUserName == '' || LoginPassword)
-      if(response.data.message || loginUserName == '' || loginPassword == ''){
-        //if credential dont match
-        navigateTo('/') // so we shall navigate to the same login page
-        // console.log(response.data.message)
-        setLoginStatus(`Credentials Don't Exist!`)
-      }else{
-        navigateTo('/dashboard') //if the credentils match we shall navigate to the dashboard
+      if (response.data.message === 'Login successful') {
+        // navigateTo('/dashboard/', { state: { username: response.data.user } });
+        navigateTo(`/dashboard/${response.data.id}`, { state: { username: response.data.user } });
+
+      } else {
+        setLoginStatus(`Credentials Don't Exist!`);
+        navigateTo('/');
       }
 
 
-    })
+      // console.log(response.data.message)
+      // //I want to catch the response first  - we have data successfully from the database and we can catch an error if the credentails are wrong
+      // // if(LoginUserName == '' || LoginPassword)
+      // if(response.data.message || loginUserName == '' || loginPassword == ''){
+      //   //if credential dont match
+      //   navigateTo('/') // so we shall navigate to the same login page
+      //   // console.log(response.data.message)
+      //   setLoginStatus(`Credentials Don't Exist!`)
+      // }else{
+      //   navigateTo('/dashboard') //if the credentils match we shall navigate to the dashboard
+      // }
+    });
   }
   useEffect(()=>{
     if(loginStatus !== ''){

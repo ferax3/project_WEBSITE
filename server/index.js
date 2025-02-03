@@ -63,10 +63,20 @@ app.post('/login', (req, res)=>{
     //Query to execute the sql statement stated above
     db.query(SQL, Values, (err, results)=>{
         if(err){
-            res.send({error: err})
+            console.error("Database error:", err);
+            return res.status(500).send({ error: 'Database error' });
+            // res.send({error: err})
         }
         if(results.length > 0){
-            res.send(results)
+
+            console.log(results[0]);  // Додаємо лог для перевірки результату з бази
+            // res.send(results)
+            // res.send({ message: 'Login successful', user: results[0].username });
+            res.send({
+                message: 'Login successful',
+                user: results[0].username,
+                id: results[0].id  // Припускаємо, що в таблиці є поле `id`
+            });
         }
         else{
             res.send({message: `Credentials Don't Match!`})
