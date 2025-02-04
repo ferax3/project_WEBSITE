@@ -77,81 +77,72 @@ function createRatingMatrix(feedbacks, userCount, placeCount) {
     return R;
 }
 
-// Fetch data and run matrix factorization
-function runMatrixFactorization() {
-    db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
-        if (err) {
-            console.error('Error fetching feedbacks:', err);
-            return;
-        }
+//! ПЕРШЕ ТЕСТУВАННЯ-ПЕРЕВІРКА НА СУМІСНІСТЬ
+// function runMatrixFactorization() {
+//     db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
+//         if (err) {
+//             console.error('Error fetching feedbacks:', err);
+//             return;
+//         }
+//         const userIDs = [...new Set(results.map(item => item.userID))];
+//         const placeIDs = [...new Set(results.map(item => item.placeID))];
+//         const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
+//         const K = 10; // Number of latent features
+//         // // Ініціалізація P та Q
+//         // const P = Array.from({ length: R.length }, () => 
+//         //     Array.from({ length: K }, () => Math.random() * 0.1)
+//         // );
+//         // const Q = Array.from({ length: R[0].length }, () => 
+//         //     Array.from({ length: K }, () => Math.random() * 0.1)
+//         // );
 
-        const userIDs = [...new Set(results.map(item => item.userID))];
-        const placeIDs = [...new Set(results.map(item => item.placeID))];
+//         // Функція для створення випадкової матриці
+//         const randomMatrix = (rows, cols) => 
+//             Array.from({ length: rows }, () => 
+//                 Array.from({ length: cols }, () => Math.random())
+//             );
 
-        const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
-        const K = 10; // Number of latent features
+//         // Ініціалізація матриць P та Q
+//         const P = randomMatrix(R.length, K);
+//         const Q = randomMatrix(R[0].length, K);
 
-        // // Ініціалізація P та Q
-        // const P = Array.from({ length: R.length }, () => 
-        //     Array.from({ length: K }, () => Math.random() * 0.1)
-        // );
-        // const Q = Array.from({ length: R[0].length }, () => 
-        //     Array.from({ length: K }, () => Math.random() * 0.1)
-        // );
+//         // console.log('Initial P:', P);
+//         // console.log('Initial Q:', Q);
 
-        // Функція для створення випадкової матриці
-        const randomMatrix = (rows, cols) => 
-            Array.from({ length: rows }, () => 
-                Array.from({ length: cols }, () => Math.random())
-            );
+//         // const P = Array.from({ length: R.length }, () => Array(K).fill(Math.random()));
+//         // const Q = Array.from({ length: R[0].length }, () => Array(K).fill(Math.random()));
 
-        // Ініціалізація матриць P та Q
-        const P = randomMatrix(R.length, K);
-        const Q = randomMatrix(R[0].length, K);
+//         // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
+//         const { P: finalP, Q: finalQ, e: finalE  } = matrixFactorization(R, P, Q, K);
 
-        // console.log('Initial P:', P);
-        // console.log('Initial Q:', Q);
+//         console.log('Original Rating Matrix:');
+//         console.table(R);
 
+//         const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
 
-        // const P = Array.from({ length: R.length }, () => Array(K).fill(Math.random()));
-        // const Q = Array.from({ length: R[0].length }, () => Array(K).fill(Math.random()));
+//         // Виправлений розрахунок повної матриці передбачення
+//         const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
+//         );
 
-        // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
-        const { P: finalP, Q: finalQ, e: finalE  } = matrixFactorization(R, P, Q, K);
+//         // Округлення всіх значень у матриці до трьох знаків після коми
+//         const roundedMatrix = resultMatrix.map(row =>
+//             row.map(value => Number(value.toFixed(2)))
+//         );
 
-
-        console.log('Original Rating Matrix:');
-        console.table(R);
-
-        const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
-
-        // Виправлений розрахунок повної матриці передбачення
-        const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
-        );
-
-        // Округлення всіх значень у матриці до трьох знаків після коми
-        const roundedMatrix = resultMatrix.map(row =>
-            row.map(value => Number(value.toFixed(2)))
-        );
-
-        console.log('Predicted rating matrix:');
-        // Виведення матриці у консоль
-        console.table(roundedMatrix);
-        // console.table(resultMatrix);
-
-
-
-
-        // console.log('Factorized Matrices:');
-        // console.log('P:', finalP);
-        // console.log('Q:', finalQ);
-        console.log("Error", finalE);
-    });
-}
+//         console.log('Predicted rating matrix:');
+//         // Виведення матриці у консоль
+//         console.table(roundedMatrix);
+//         // console.table(resultMatrix);
+//         // console.log('Factorized Matrices:');
+//         // console.log('P:', finalP);
+//         // console.log('Q:', finalQ);
+//         console.log("Error", finalE);
+//     });
+// }
 
 app.listen(3002, ()=>{
     console.log("Server is running on port 3002");
-    runMatrixFactorization();
+    // runMatrixFactorization();
 })
 
 //let us now create a route to the server that will register a user
@@ -217,3 +208,102 @@ app.post('/login', (req, res)=>{
         }
     })
 })
+
+app.get('/recommendations/:userID', (req, res) => {
+    const userID = parseInt(req.params.userID);
+
+    db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
+        if (err) {
+            console.error('Error fetching feedbacks:', err);
+            return res.status(500).send('Database error');
+        }
+
+        const userIDs = [...new Set(results.map(item => item.userID))];
+        const placeIDs = [...new Set(results.map(item => item.placeID))];
+
+        const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
+        const K = 10;
+
+        //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
+        console.log('Original Rating Matrix:');
+        console.table(R);
+
+        const randomMatrix = (rows, cols) =>
+            Array.from({ length: rows }, () =>
+                Array.from({ length: cols }, () => Math.random())
+            );
+
+        const P = randomMatrix(R.length, K);
+        const Q = randomMatrix(R[0].length, K);
+
+        //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
+        // const { P: finalP, Q: finalQ, e: finalE } = matrixFactorization(R, P, Q, K);
+        const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
+
+
+        const userIndex = userID - 1; // Індекс у матриці P
+        const userVector = finalP[userIndex];
+
+        const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
+
+
+        // Фільтрація місць, які користувач ще не оцінив (де в R значення 0)
+         const predictedRatings = finalQ
+         .map((placeVector, index) => ({
+             placeID: index + 1,
+             rating: dotProduct(userVector, placeVector),
+             visited: R[userIndex][index] > 0 // Перевірка, чи місце було відвідане
+         }))
+         .filter(item => !item.visited) // Залишаємо лише невідвідані місця
+         .sort((a, b) => b.rating - a.rating); // Сортування за спаданням рейтингу
+        //! СТАРА ВЕРСІЯ
+        // const predictedRatings = finalQ.map((placeVector, index) => ({
+        //     placeID: index + 1,
+        //     rating: dotProduct(userVector, placeVector)
+        // }));
+        // predictedRatings.sort((a, b) => b.rating - a.rating); // Сортування за спаданням рейтингу
+
+        const placeIDsToFetch = predictedRatings.map(item => item.placeID);
+
+        //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
+        // // Виправлений розрахунок повної матриці передбачення
+        // const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
+        // );
+        // // Округлення всіх значень у матриці до трьох знаків після коми
+        // const roundedMatrix = resultMatrix.map(row =>
+        //     row.map(value => Number(value.toFixed(2)))
+        // );
+        // console.log('Predicted rating matrix:');
+        // // Виведення матриці у консоль
+        // console.table(roundedMatrix);
+        // console.table(resultMatrix);
+        //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
+        // console.log('Factorized Matrices:');
+        // console.log('P:', finalP);
+        // console.log('Q:', finalQ);
+        // console.log("Error", finalE);
+
+        // Отримуємо назви місць
+        db.query(
+            'SELECT placeID, name FROM places WHERE placeID IN (?)',
+            [placeIDsToFetch],
+            (err, places) => {
+                if (err) {
+                    console.error('Error fetching places:', err);
+                    return res.status(500).send('Database error');
+                }
+
+                const recommendations = predictedRatings.map(item => {
+                    const place = places.find(p => p.placeID === item.placeID);
+                    return {
+                        placeID: item.placeID,
+                        name: place ? place.name : 'Unknown Place',
+                        predictedRating: Number(item.rating.toFixed(2))
+                    };
+                });
+
+                res.json(recommendations);
+            }
+        );
+    });
+});
