@@ -2,8 +2,8 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import "../../App.css"
 const Dashboard = () => {
   const location = useLocation();
-  const { id } = useParams();
-  const username = location.state?.username || 'User';
+  const { userID } = useParams();
+  const name = location.state?.name || 'User';
   return (
     <>
       <div className='dashboard flex'>
@@ -13,8 +13,8 @@ const Dashboard = () => {
           </Link>
         </div>
         <div>
-          <h1>Welcome to your Dashboard, {username}!</h1>
-          <p>Your ID: {id}</p>
+          <h1>Welcome to your Dashboard, {name}!</h1>
+          <p>Your ID: {userID}</p>
         </div>
       </div>
 

@@ -12,7 +12,7 @@ import './App.css'
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
   { path: "/register", element: <Register /> },
-  { path: "/dashboard/:id", element: <Dashboard /> },
+  { path: "/dashboard/:userID", element: <Dashboard /> },
   // {
   //   path: "/",
   //   element: <div><Login/></div>

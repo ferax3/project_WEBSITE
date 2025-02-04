@@ -20,19 +20,21 @@ const db = mysql.createConnection({
     user: 'root',
     host: 'localhost',
     password: '',
-    database: 'plantdb',
+    // database: 'plantdb',
+    database: 'advicedb',
+
 })
 
 //let us now create a route to the server that will register a user
 app.post('/register', (req, res)=>{
     // we need to get variables sent from the form
     const sentEmail = req.body.Email
-    const sentUserName = req.body.UserName
+    const sentName = req.body.Name
     const sentPassword = req.body.Password
 
     //Lets create SQL statement to insert the user to the Database table Users
-    const SQL = 'INSERT INTO users (email, username, password) VALUES (?,?,?)'
-    const Values = [sentEmail, sentUserName, sentPassword]
+    const SQL = 'INSERT INTO users (email, name, password) VALUES (?,?,?)'
+    const Values = [sentEmail, sentName, sentPassword]
 
     //Query to execute the sql statement stated above
     db.query(SQL, Values, (err, results)=>{
@@ -53,12 +55,14 @@ app.post('/register', (req, res)=>{
 //Lets create another route
 app.post('/login', (req, res)=>{
     // we need to get variables sent from the form
-    const sentLoginUserName = req.body.LoginUserName
+    const sentLoginName = req.body.LoginName
     const sentLoginPassword = req.body.LoginPassword
 
     //Lets create SQL statement to insert the user to the Database table Users
-    const SQL = 'SELECT * FROM users WHERE username = ?  && password = ?'
-    const Values = [sentLoginUserName, sentLoginPassword]
+    // const SQL = 'SELECT * FROM users WHERE username = ?  && password = ?'
+    const SQL = 'SELECT * FROM users WHERE name = ?  && password = ?'
+
+    const Values = [sentLoginName, sentLoginPassword]
 
     //Query to execute the sql statement stated above
     db.query(SQL, Values, (err, results)=>{
@@ -74,8 +78,8 @@ app.post('/login', (req, res)=>{
             // res.send({ message: 'Login successful', user: results[0].username });
             res.send({
                 message: 'Login successful',
-                user: results[0].username,
-                id: results[0].id  // Припускаємо, що в таблиці є поле `id`
+                user: results[0].name,
+                userID: results[0].userID  // Припускаємо, що в таблиці є поле `id`
             });
         }
         else{

@@ -16,7 +16,9 @@ import logo from '../../LoginAssets/logo-leaf.png'
 const Register = () => {
   // UseState to hold our inputs
   const [email, setEmail] = useState('')
-  const [userName, setUserName] = useState('')
+  // const [userName, setUserName] = useState('')
+  const [name, setName] = useState('')
+
   const [password, setPassword] = useState('')
   const navigateTo = useNavigate()
 
@@ -28,7 +30,7 @@ const Register = () => {
     Axios.post('http://localhost:3002/register', {
       //create variable to send to the server through the route
       Email: email,
-      UserName: userName,
+      Name: name,
       Password: password
     }). then(()=>{
       //On register let us redirect the user to the Login page
@@ -37,7 +39,7 @@ const Register = () => {
 
       //let us clear the fields too
       setEmail('')
-      setUserName('')
+      setName('')
       setPassword('')
     })
   }
@@ -81,11 +83,11 @@ const Register = () => {
               </div>              
               
               <div className="inputDiv">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="name">Username</label>
                 <div className="input flex">
                   <FaUserShield className='icon'/>
-                  <input type="text" id='username' placeholder='Enter Username' onChange={(event)=>{
-                    setUserName(event.target.value)
+                  <input type="text" id='name' placeholder='Enter Username' onChange={(event)=>{
+                    setName(event.target.value)
                   } }/>
                 </div>
               </div>
