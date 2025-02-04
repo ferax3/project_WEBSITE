@@ -1,0 +1,90 @@
+.dashboard-container {
+    padding: 20px;
+    text-align: center;
+  
+    .dashboard-header {
+      margin-bottom: 20px;
+  
+      h1 {
+        font-size: 2.5rem;
+        color: #333;
+      }
+  
+      p {
+        font-size: 1.2rem;
+        color: #777;
+      }
+  
+      .places-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+  
+        &:hover {
+          background-color: #45a049;
+        }
+      }
+    }
+  
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: #444;
+    }
+  
+    .recommendations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 0 10px;
+    }
+  
+    .recommendation-card {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+      h3 {
+        font-size: 1.5rem;
+        color: #222;
+        margin-bottom: 10px;
+      }
+  
+      p {
+        font-size: 1rem;
+        color: #555;
+      }
+  
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+  
+      .rating-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 14px;
+      }
+  
+      .thumbs-up-icon {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        color: #b42bbb;
+      }
+    }
+  }
+  

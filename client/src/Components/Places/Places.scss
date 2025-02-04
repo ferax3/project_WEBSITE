@@ -50,6 +50,32 @@
         font-style: italic;
         color: #777;
       }
+      .rating-section {
+        margin-top: 10px;
+  
+        label {
+          font-weight: bold;
+        }
+  
+        select {
+          padding: 5px;
+          margin-left: 10px;
+          border-radius: 4px;
+          border: 1px solid #ccc;
+          background-color: white;
+          cursor: pointer;
+  
+          &:hover {
+            border-color: #4CAF50;
+          }
+        }
+  
+        .current-rating {
+          margin-top: 5px;
+          color: #4CAF50;
+          font-weight: bold;
+        }
+      }
       .rating {
         font-weight: bold;
         color: #4CAF50;

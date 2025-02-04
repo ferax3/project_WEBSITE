@@ -1,0 +1,76 @@
+.dashboard-container {
+  padding: 20px;
+  text-align: center;
+}
+.dashboard-container .dashboard-header {
+  margin-bottom: 20px;
+}
+.dashboard-container .dashboard-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+}
+.dashboard-container .dashboard-header p {
+  font-size: 1.2rem;
+  color: #777;
+}
+.dashboard-container .dashboard-header .places-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.dashboard-container .dashboard-header .places-button:hover {
+  background-color: #45a049;
+}
+.dashboard-container h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #444;
+}
+.dashboard-container .recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 0 10px;
+}
+.dashboard-container .recommendation-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.dashboard-container .recommendation-card h3 {
+  font-size: 1.5rem;
+  color: #222;
+  margin-bottom: 10px;
+}
+.dashboard-container .recommendation-card p {
+  font-size: 1rem;
+  color: #555;
+}
+.dashboard-container .recommendation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.dashboard-container .recommendation-card .rating-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+}
+.dashboard-container .recommendation-card .thumbs-up-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: #b42bbb;
+}/*# sourceMappingURL=Dashboard.css.map */
