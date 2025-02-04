@@ -54,18 +54,6 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-
-      {/* <div className='dashboard flex'>
-        <div className="dashboardContainer flex">
-          <Link to="/">
-            <button>Log Out</button>
-          </Link>        
-          <div>
-            <h1>Welcome to your Dashboard, {name}!</h1>
-            <p>Your ID: {userID}</p>
-          </div>
-        </div>
-      </div> */}
     </>
   );
 }
