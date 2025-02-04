@@ -27,7 +27,11 @@ const Dashboard = () => {
       <div className="dashboardContainer flex">
         <Link to="/">
           <button>Log Out</button>
-        </Link>        
+        </Link>  
+
+        <Link to={`/places/${userID}`}>
+          <button>View All Places</button>
+        </Link>       
         <div>
           <h1>Welcome to your Dashboard, {name}!</h1>
           <p>Your ID: {userID}</p>

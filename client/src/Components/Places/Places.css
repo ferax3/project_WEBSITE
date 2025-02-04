@@ -1,0 +1,57 @@
+.places-container {
+  padding: 20px;
+  text-align: center;
+}
+.places-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+.places-container .back-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+.places-container .back-button:hover {
+  background-color: #45a049;
+}
+.places-container .places-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 0 10px;
+}
+.places-container .place-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.places-container .place-card h2 {
+  font-size: 1.5rem;
+  color: #222;
+  margin-bottom: 10px;
+}
+.places-container .place-card p {
+  margin: 5px 0;
+  color: #555;
+}
+.places-container .place-card .address {
+  font-style: italic;
+  color: #777;
+}
+.places-container .place-card .rating {
+  font-weight: bold;
+  color: #4CAF50;
+  margin-top: 10px;
+}
+.places-container .place-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}/*# sourceMappingURL=Places.css.map */

@@ -1,6 +1,7 @@
 import Dashboard from './Components/Dashboard/Dashboard'
 import Login from './Components/Login/Login'
 import Register from './Components/Register/Register'
+import Places from './Components/Places/Places';
 
 import {
   createBrowserRouter,
@@ -13,6 +14,7 @@ const router = createBrowserRouter([
   { path: "/", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/dashboard/:userID", element: <Dashboard /> },
+  { path: "/places/:userID", element: <Places /> },
   // {
   //   path: "/",
   //   element: <div><Login/></div>

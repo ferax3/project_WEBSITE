@@ -225,8 +225,8 @@ app.get('/recommendations/:userID', (req, res) => {
         const K = 10;
 
         //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
-        console.log('Original Rating Matrix:');
-        console.table(R);
+        // console.log('Original Rating Matrix:');
+        // console.table(R);
 
         const randomMatrix = (rows, cols) =>
             Array.from({ length: rows }, () =>
@@ -266,16 +266,16 @@ app.get('/recommendations/:userID', (req, res) => {
         const placeIDsToFetch = predictedRatings.map(item => item.placeID);
 
         //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
-        // // Виправлений розрахунок повної матриці передбачення
-        // const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
-        // );
-        // // Округлення всіх значень у матриці до трьох знаків після коми
-        // const roundedMatrix = resultMatrix.map(row =>
-        //     row.map(value => Number(value.toFixed(2)))
-        // );
-        // console.log('Predicted rating matrix:');
-        // // Виведення матриці у консоль
-        // console.table(roundedMatrix);
+        // Виправлений розрахунок повної матриці передбачення
+        const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
+        );
+        // Округлення всіх значень у матриці до трьох знаків після коми
+        const roundedMatrix = resultMatrix.map(row =>
+            row.map(value => Number(value.toFixed(2)))
+        );
+        console.log('Predicted rating matrix:');
+        // Виведення матриці у консоль
+        console.table(roundedMatrix);
         // console.table(resultMatrix);
         //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
         // console.log('Factorized Matrices:');
@@ -305,5 +305,66 @@ app.get('/recommendations/:userID', (req, res) => {
                 res.json(recommendations);
             }
         );
+    });
+});
+app.get('/places', (req, res) => {
+    db.query('SELECT placeID, name, description, address FROM places', (err, results) => {
+        if (err) {
+            console.error('Error fetching places:', err);
+            return res.status(500).send('Database error');
+        }
+        res.json(results);
+    });
+});
+app.get('/user-feedbacks/:userID', (req, res) => {
+    const userID = req.params.userID;
+
+    const sql = `
+        SELECT f.placeID, f.rating, p.name, p.description, p.address
+        FROM feedbacks f
+        JOIN places p ON f.placeID = p.placeID
+        WHERE f.userID = ?
+    `;
+
+    db.query(sql, [userID], (err, results) => {
+        if (err) {
+            console.error('Error fetching user feedbacks:', err);
+            return res.status(500).send('Database error');
+        }
+
+        res.json(results);
+    });
+});
+app.post('/feedbacks', (req, res) => {
+    const { userID, placeID, rating } = req.body;
+
+    const checkSql = 'SELECT * FROM feedbacks WHERE userID = ? AND placeID = ?';
+    db.query(checkSql, [userID, placeID], (err, results) => {
+        if (err) {
+            console.error('Error checking feedback:', err);
+            return res.status(500).send('Database error');
+        }
+
+        if (results.length > 0) {
+            // Оновлення існуючої оцінки
+            const updateSql = 'UPDATE feedbacks SET rating = ? WHERE userID = ? AND placeID = ?';
+            db.query(updateSql, [rating, userID, placeID], (err) => {
+                if (err) {
+                    console.error('Error updating feedback:', err);
+                    return res.status(500).send('Database error');
+                }
+                res.send({ message: 'Rating updated successfully' });
+            });
+        } else {
+            // Додавання нової оцінки
+            const insertSql = 'INSERT INTO feedbacks (userID, placeID, rating) VALUES (?, ?, ?)';
+            db.query(insertSql, [userID, placeID, rating], (err) => {
+                if (err) {
+                    console.error('Error inserting feedback:', err);
+                    return res.status(500).send('Database error');
+                }
+                res.send({ message: 'Rating added successfully' });
+            });
+        }
     });
 });
