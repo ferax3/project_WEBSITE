@@ -285,7 +285,7 @@ app.get('/recommendations/:userID', (req, res) => {
 
         // Отримуємо назви місць
         db.query(
-            'SELECT placeID, name FROM places WHERE placeID IN (?)',
+            'SELECT placeID, name, description FROM places WHERE placeID IN (?)',
             [placeIDsToFetch],
             (err, places) => {
                 if (err) {
@@ -298,6 +298,7 @@ app.get('/recommendations/:userID', (req, res) => {
                     return {
                         placeID: item.placeID,
                         name: place ? place.name : 'Unknown Place',
+                        description: place ? place.description : 'Опис недоступний',
                         predictedRating: Number(item.rating.toFixed(2))
                     };
                 });

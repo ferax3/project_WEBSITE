@@ -4,40 +4,28 @@ import { FaUserShield } from "react-icons/fa";
 import { BsFillShieldLockFill } from 'react-icons/bs';
 import { AiOutlineSwapRight } from 'react-icons/ai';
 import { MdMarkEmailRead } from 'react-icons/md';
+import { FaRegFaceSmileBeam } from "react-icons/fa6";
 import Axios from 'axios'
 
 
 import "./Register.css"
 import "../../App.css"
-import video from '../../LoginAssets/rain.mp4'
-import logo from '../../LoginAssets/logo-leaf.png'
+import video from '../../LoginAssets/116660-708909854_small.mp4'
 
 
 const Register = () => {
-  // UseState to hold our inputs
   const [email, setEmail] = useState('')
-  // const [userName, setUserName] = useState('')
   const [name, setName] = useState('')
-
   const [password, setPassword] = useState('')
   const navigateTo = useNavigate()
-
-
-  //Onclick let us get what the user has entered
   const createUser = (e) => {
     e.preventDefault();
-    //we shall require Axios to create an API that connects to the server - lets install that
     Axios.post('http://localhost:3002/register', {
-      //create variable to send to the server through the route
       Email: email,
       Name: name,
       Password: password
     }). then(()=>{
-      //On register let us redirect the user to the Login page
       navigateTo('/')
-      // console.log("User has been created")
-
-      //let us clear the fields too
       setEmail('')
       setName('')
       setPassword('')
@@ -47,27 +35,34 @@ const Register = () => {
 
   return (
     <>
+      <div className="blob-outer-container">
+        <div className="blob-inner-container">
+          <div className="blob"></div>
+        </div>
+      </div>
       <div className='registerPage flex'>
         <div className="container flex">
           <div className="videoDiv">
             <video src= {video} autoPlay muted loop></video>
             <div className="textDiv">
-              <h2 className="title">Create And Sell Extraordinary Products</h2>
-              <p className='subtitle'>Adopt the peace of nature!</p>
+              <h2 className="title">Знайдіть час на відпочинок</h2>
+              <p className='subtitle'>"Світ такий великий. Пішли відкривати його" - Джордж Малорі</p>
             </div>
 
             <div className="footerDiv flex">
-              <span className="text">Have an account?</span>
+              <span className="text">Маєте обліковий запис?</span>
               <Link to='/'>
-                <button className='btn'> Login</button>
+                <button className='btn'> Вхід</button>
               </Link>
             </div>
           </div>
 
           <div className="formDiv flex">
             <div className="headerDiv">
-              <img src={logo} alt="logo" />
-              <h3>Let Us Know You!</h3>
+              <h3>Познайомимось?</h3>
+              <div className="smile">
+                <FaRegFaceSmileBeam size={24}/>
+              </div>
             </div>
 
             <form action="" className='form grid'>
@@ -76,38 +71,38 @@ const Register = () => {
                 <label htmlFor="email">Email</label>
                 <div className="input flex">
                   <MdMarkEmailRead className='icon'/>
-                  <input type="email" id='email' placeholder='Enter Email' onChange={(event)=>{
+                  <input type="email" id='email' placeholder='Введіть email' onChange={(event)=>{
                     setEmail(event.target.value)
                   } }/>
                 </div>
               </div>              
               
               <div className="inputDiv">
-                <label htmlFor="name">Username</label>
+                <label htmlFor="name">Ваше ім'я</label>
                 <div className="input flex">
                   <FaUserShield className='icon'/>
-                  <input type="text" id='name' placeholder='Enter Username' onChange={(event)=>{
+                  <input type="text" id='name' placeholder="Введіть ім'я" onChange={(event)=>{
                     setName(event.target.value)
                   } }/>
                 </div>
               </div>
 
               <div className="inputDiv">
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">Пароль</label>
                 <div className="input flex">
                   <BsFillShieldLockFill className='icon'/>
-                  <input type="password" id='password' placeholder='Enter Password' onChange={(event)=>{
+                  <input type="password" id='password' placeholder='Введіть пароль' onChange={(event)=>{
                     setPassword(event.target.value)
                   } }/>
                 </div>
               </div>
 
               <button type='submit' className='btn flex' onClick={createUser}>
-                <span>Register</span>
+                <span>Зареєструватись</span>
                 <AiOutlineSwapRight className='icon'/>
               </button>
 
-              <span className='forgotPassword'>Forgot your password? <a href="">Click Here</a></span>
+              <span className='forgotPassword'>Забули пароль? <a href="">Натисніть</a></span>
 
             </form>
           </div>
