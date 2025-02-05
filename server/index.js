@@ -1,5 +1,3 @@
-//our dependecies
-
 const express = require('express')
 const app = express()
 const mysql = require('mysql')
@@ -7,12 +5,6 @@ const cors = require('cors')
 
 app.use(express.json())
 app.use(cors())
-
-// Let us run the server
-
-
-
-// let us create our database(mysql)
 
 const db = mysql.createConnection({
     user: 'root',
@@ -23,7 +15,6 @@ const db = mysql.createConnection({
 
 })
 
-// Matrix Factorization Function
 function matrixFactorization(R, P, Q, K, steps = 10000, alpha = 0.005, beta = 0.01) {
     const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
     const transpose = (matrix) => matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
@@ -145,18 +136,14 @@ app.listen(3002, ()=>{
     // runMatrixFactorization();
 })
 
-//let us now create a route to the server that will register a user
 app.post('/register', (req, res)=>{
-    // we need to get variables sent from the form
     const sentEmail = req.body.Email
     const sentName = req.body.Name
     const sentPassword = req.body.Password
 
-    //Lets create SQL statement to insert the user to the Database table Users
     const SQL = 'INSERT INTO users (email, name, password) VALUES (?,?,?)'
     const Values = [sentEmail, sentName, sentPassword]
 
-    //Query to execute the sql statement stated above
     db.query(SQL, Values, (err, results)=>{
         if(err){
             res.send(err)
@@ -164,47 +151,33 @@ app.post('/register', (req, res)=>{
         else{
             console.log("User inserted successfully!")
             res.send({message: 'User added!'})
-            //Let try and see
-            //user has not been submitted, we need to use Express and cors
-            //SUCCESSFULL
         }
     })
 })
-
-// Now we need to Login with these crefentials from a registered User
-//Lets create another route
 app.post('/login', (req, res)=>{
-    // we need to get variables sent from the form
     const sentLoginName = req.body.LoginName
     const sentLoginPassword = req.body.LoginPassword
 
-    //Lets create SQL statement to insert the user to the Database table Users
-    // const SQL = 'SELECT * FROM users WHERE username = ?  && password = ?'
     const SQL = 'SELECT * FROM users WHERE name = ?  && password = ?'
 
     const Values = [sentLoginName, sentLoginPassword]
 
-    //Query to execute the sql statement stated above
     db.query(SQL, Values, (err, results)=>{
         if(err){
             console.error("Database error:", err);
             return res.status(500).send({ error: 'Database error' });
-            // res.send({error: err})
         }
         if(results.length > 0){
 
-            console.log(results[0]);  // Додаємо лог для перевірки результату з бази
-            // res.send(results)
-            // res.send({ message: 'Login successful', user: results[0].username });
+            console.log(results[0]);
             res.send({
                 message: 'Login successful',
                 user: results[0].name,
-                userID: results[0].userID  // Припускаємо, що в таблиці є поле `id`
+                userID: results[0].userID 
             });
         }
         else{
             res.send({message: `Credentials Don't Match!`})
-            // This should be good, lets try to login
         }
     })
 })
@@ -241,13 +214,13 @@ app.get('/recommendations/:userID', (req, res) => {
         const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
 
 
-        const userIndex = userID - 1; // Індекс у матриці P
+        const userIndex = userID - 1;
         const userVector = finalP[userIndex];
 
         const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
 
 
-        // Фільтрація місць, які користувач ще не оцінив (де в R значення 0)
+        // Фільтрація місць
          const predictedRatings = finalQ
          .map((placeVector, index) => ({
              placeID: index + 1,
@@ -256,12 +229,6 @@ app.get('/recommendations/:userID', (req, res) => {
          }))
          .filter(item => !item.visited) // Залишаємо лише невідвідані місця
          .sort((a, b) => b.rating - a.rating); // Сортування за спаданням рейтингу
-        //! СТАРА ВЕРСІЯ
-        // const predictedRatings = finalQ.map((placeVector, index) => ({
-        //     placeID: index + 1,
-        //     rating: dotProduct(userVector, placeVector)
-        // }));
-        // predictedRatings.sort((a, b) => b.rating - a.rating); // Сортування за спаданням рейтингу
 
         const placeIDsToFetch = predictedRatings.map(item => item.placeID);
 
@@ -283,7 +250,6 @@ app.get('/recommendations/:userID', (req, res) => {
         // console.log('Q:', finalQ);
         // console.log("Error", finalE);
 
-        // Отримуємо назви місць
         db.query(
             'SELECT placeID, name, description FROM places WHERE placeID IN (?)',
             [placeIDsToFetch],
