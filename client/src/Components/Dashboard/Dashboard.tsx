@@ -51,7 +51,7 @@ const Dashboard = () => {
               <div className="rating-badge">{index + 1}</div>
 
               <h3>{rec.name}</h3>
-              {/* <p>Прогнозована оцінка: {rec.predictedRating}</p> */}
+              <p>Прогнозована оцінка: {rec.predictedRating}</p>
               <p className="description">{rec.description}</p>
               {rec.predictedRating >= 3.5 && (
                 <div className="thumbs-up-icon">

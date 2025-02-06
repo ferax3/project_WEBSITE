@@ -10,7 +10,6 @@ const db = mysql.createConnection({
     user: 'root',
     host: 'localhost',
     password: '',
-    // database: 'plantdb',
     database: 'advicedb',
 
 })
@@ -78,7 +77,7 @@ function createRatingMatrix(feedbacks, userCount, placeCount) {
 //         const userIDs = [...new Set(results.map(item => item.userID))];
 //         const placeIDs = [...new Set(results.map(item => item.placeID))];
 //         const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
-//         const K = 10; // Number of latent features
+//         const K = 10; 
 //         // // Ініціалізація P та Q
 //         // const P = Array.from({ length: R.length }, () => 
 //         //     Array.from({ length: K }, () => Math.random() * 0.1)
@@ -87,13 +86,11 @@ function createRatingMatrix(feedbacks, userCount, placeCount) {
 //         //     Array.from({ length: K }, () => Math.random() * 0.1)
 //         // );
 
-//         // Функція для створення випадкової матриці
 //         const randomMatrix = (rows, cols) => 
 //             Array.from({ length: rows }, () => 
 //                 Array.from({ length: cols }, () => Math.random())
 //             );
 
-//         // Ініціалізація матриць P та Q
 //         const P = randomMatrix(R.length, K);
 //         const Q = randomMatrix(R[0].length, K);
 
@@ -111,17 +108,14 @@ function createRatingMatrix(feedbacks, userCount, placeCount) {
 
 //         const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
 
-//         // Виправлений розрахунок повної матриці передбачення
 //         const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
 //         );
 
-//         // Округлення всіх значень у матриці до трьох знаків після коми
 //         const roundedMatrix = resultMatrix.map(row =>
 //             row.map(value => Number(value.toFixed(2)))
 //         );
 
 //         console.log('Predicted rating matrix:');
-//         // Виведення матриці у консоль
 //         console.table(roundedMatrix);
 //         // console.table(resultMatrix);
 //         // console.log('Factorized Matrices:');
@@ -198,8 +192,8 @@ app.get('/recommendations/:userID', (req, res) => {
         const K = 10;
 
         //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
-        // console.log('Original Rating Matrix:');
-        // console.table(R);
+        console.log('Original Rating Matrix:');
+        console.table(R);
 
         const randomMatrix = (rows, cols) =>
             Array.from({ length: rows }, () =>
@@ -210,8 +204,8 @@ app.get('/recommendations/:userID', (req, res) => {
         const Q = randomMatrix(R[0].length, K);
 
         //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
-        // const { P: finalP, Q: finalQ, e: finalE } = matrixFactorization(R, P, Q, K);
-        const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
+        const { P: finalP, Q: finalQ, e: finalE } = matrixFactorization(R, P, Q, K);
+        // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
 
 
         const userIndex = userID - 1;
@@ -219,36 +213,33 @@ app.get('/recommendations/:userID', (req, res) => {
 
         const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
 
-
-        // Фільтрація місць
          const predictedRatings = finalQ
          .map((placeVector, index) => ({
              placeID: index + 1,
              rating: dotProduct(userVector, placeVector),
-             visited: R[userIndex][index] > 0 // Перевірка, чи місце було відвідане
+             visited: R[userIndex][index] > 0
          }))
-         .filter(item => !item.visited) // Залишаємо лише невідвідані місця
-         .sort((a, b) => b.rating - a.rating); // Сортування за спаданням рейтингу
+         .filter(item => !item.visited)
+         .sort((a, b) => b.rating - a.rating);
 
         const placeIDsToFetch = predictedRatings.map(item => item.placeID);
 
         //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
-        // Виправлений розрахунок повної матриці передбачення
         const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
         );
-        // Округлення всіх значень у матриці до трьох знаків після коми
         const roundedMatrix = resultMatrix.map(row =>
             row.map(value => Number(value.toFixed(2)))
-        );
+        ); 
+               // !Виведення матриці
         console.log('Predicted rating matrix:');
-        // Виведення матриці у консоль
+
         console.table(roundedMatrix);
         // console.table(resultMatrix);
         //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
         // console.log('Factorized Matrices:');
         // console.log('P:', finalP);
         // console.log('Q:', finalQ);
-        // console.log("Error", finalE);
+        console.log("Error", finalE);
 
         db.query(
             'SELECT placeID, name, description FROM places WHERE placeID IN (?)',
@@ -263,7 +254,7 @@ app.get('/recommendations/:userID', (req, res) => {
                     const place = places.find(p => p.placeID === item.placeID);
                     return {
                         placeID: item.placeID,
-                        name: place ? place.name : 'Unknown Place',
+                        name: place ? place.name : 'Невідоме місце',
                         description: place ? place.description : 'Опис недоступний',
                         predictedRating: Number(item.rating.toFixed(2))
                     };
@@ -313,7 +304,7 @@ app.post('/feedbacks', (req, res) => {
         }
 
         if (results.length > 0) {
-            // Оновлення існуючої оцінки
+            //! Оновлення існуючої оцінки
             const updateSql = 'UPDATE feedbacks SET rating = ? WHERE userID = ? AND placeID = ?';
             db.query(updateSql, [rating, userID, placeID], (err) => {
                 if (err) {
@@ -323,7 +314,7 @@ app.post('/feedbacks', (req, res) => {
                 res.send({ message: 'Rating updated successfully' });
             });
         } else {
-            // Додавання нової оцінки
+            //! Додавання нової оцінки
             const insertSql = 'INSERT INTO feedbacks (userID, placeID, rating) VALUES (?, ?, ?)';
             db.query(insertSql, [userID, placeID, rating], (err) => {
                 if (err) {
