@@ -57,11 +57,14 @@ const Places = () => {
       <div className="allCatalog">
         <div className="places-container">
         <h1>Каталог</h1>
-
-        <Link to={`/dashboard/${userID}`}>
-          <button className="back-button">Головна</button>
-        </Link>
-
+        <div className="buttons">
+            <Link to={`/dashboard/${userID}`}>
+              <button className="places-button green">Головна</button>
+            </Link>
+            <Link to="/">
+              <button className="places-button red">Вийти</button>
+            </Link>  
+          </div>
         <div className="places-grid">
           {places.map((place) => {
             const userRating = getUserRatingForPlace(place.placeID);

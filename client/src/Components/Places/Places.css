@@ -51,18 +51,32 @@
   margin-bottom: 20px;
   color: #e1e1e1;
 }
-.allCatalog .places-container .back-button {
+.allCatalog .places-container .buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.allCatalog .places-container .buttons .green {
   background-color: #4CAF50;
+}
+.allCatalog .places-container .buttons .green:hover {
+  background-color: #45a049;
+}
+.allCatalog .places-container .buttons .red {
+  background-color: #ff0000;
+}
+.allCatalog .places-container .buttons .red:hover {
+  background-color: #b30000;
+}
+.allCatalog .places-container .buttons .places-button {
   color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-bottom: 20px;
   transition: background-color 0.3s;
-}
-.allCatalog .places-container .back-button:hover {
-  background-color: #45a049;
 }
 .allCatalog .places-container .places-grid {
   display: grid;

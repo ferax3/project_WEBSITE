@@ -14,12 +14,14 @@ const db = mysql.createConnection({
 
 })
 
-function matrixFactorization(R, P, Q, K, steps = 10000, alpha = 0.005, beta = 0.01) {
+function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.01) {
     const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
     const transpose = (matrix) => matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
 
     Q = transpose(Q);
     let e = 0;
+    // !ДЛЯ ТЕСТУВАННЯ
+    const errorsPerEpoch = []; 
 
     for (let step = 0; step < steps; step++) {
         for (let i = 0; i < R.length; i++) {
@@ -48,13 +50,20 @@ function matrixFactorization(R, P, Q, K, steps = 10000, alpha = 0.005, beta = 0.
             }
         }
 
+        if (step % 100 === 0) {
+            errorsPerEpoch.push({ epoch: step, error: e });
+        }
+
         if (e < 0.001) {
             break;
         }
     }
+    errorsPerEpoch.push({ epoch: steps, error: e });
+
 
     // return { P, Q: transpose(Q) };
-    return { P, Q: transpose(Q), e };
+    // return { P, Q: transpose(Q), e };
+    return { P, Q: transpose(Q), e, errorsPerEpoch };
 
 }
 
@@ -204,10 +213,15 @@ app.get('/recommendations/:userID', (req, res) => {
         const Q = randomMatrix(R[0].length, K);
 
         //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
-        const { P: finalP, Q: finalQ, e: finalE } = matrixFactorization(R, P, Q, K);
+        const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K);
         // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
 
+        //! Зберігання в errors.csv
+        const fs = require('fs');
+        const csvData = errorsPerEpoch.map(({ epoch, error }) => `${epoch},${error}`).join('\n');
+        fs.writeFileSync('errors.csv', `Epoch,Error\n${csvData}`);
 
+      console.log('Error data saved to errors.csv');
         const userIndex = userID - 1;
         const userVector = finalP[userIndex];
 

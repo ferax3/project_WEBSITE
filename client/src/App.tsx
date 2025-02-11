@@ -15,18 +15,7 @@ const router = createBrowserRouter([
   { path: "/register", element: <Register /> },
   { path: "/dashboard/:userID", element: <Dashboard /> },
   { path: "/places/:userID", element: <Places /> },
-  // {
-  //   path: "/",
-  //   element: <div><Login/></div>
-  // },
-  // {
-  //   path: "/register",
-  //   element: <div><Register/></div>
-  // },
-  // {
-  //   path: "/dashboard",
-  //   element: <div><Dashboard/></div>
-  // },
+
 ])
 function App() {
 
