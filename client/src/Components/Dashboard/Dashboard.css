@@ -1,0 +1,137 @@
+@keyframes spinBlob {
+  0% {
+    transform: rotate(0deg) scale(2);
+  }
+  100% {
+    transform: rotate(1turn) scale(2);
+  }
+}
+.dashboard {
+  background: #000000;
+  height: 100%;
+}
+.dashboard .blob-outer-container {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 2;
+  inset: 0;
+  margin: auto;
+  filter: blur(100px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.dashboard .blob-outer-container .blob-inner-container {
+  border-radius: 99999px;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  min-width: 1000px;
+  overflow: hidden;
+  background: #fff;
+  transform: scale(0.9);
+}
+.dashboard .blob-outer-container .blob-inner-container .blob {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  inset: 0;
+  margin: auto;
+  background: conic-gradient(from 0deg, #059212, #06D001, #9BEC00, #F3FF90);
+  animation: spinBlob 8s linear infinite;
+}
+.dashboard .dashboard-container {
+  z-index: 2;
+  position: relative;
+  padding: 20px;
+  text-align: center;
+}
+.dashboard .dashboard-container .dashboard-header {
+  margin-bottom: 20px;
+}
+.dashboard .dashboard-container .dashboard-header h1 {
+  font-size: 2.5rem;
+  color: #e1e1e1;
+  margin-bottom: 15px;
+}
+.dashboard .dashboard-container .dashboard-header p {
+  font-size: 1.2rem;
+  color: #777;
+}
+.dashboard .dashboard-container .dashboard-header .buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+}
+.dashboard .dashboard-container .dashboard-header .buttons .green {
+  background-color: #4CAF50;
+}
+.dashboard .dashboard-container .dashboard-header .buttons .green:hover {
+  background-color: #45a049;
+}
+.dashboard .dashboard-container .dashboard-header .buttons .red {
+  background-color: #ff0000;
+}
+.dashboard .dashboard-container .dashboard-header .buttons .red:hover {
+  background-color: #b30000;
+}
+.dashboard .dashboard-container .dashboard-header .buttons .places-button {
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.dashboard .dashboard-container h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #cacaca;
+}
+.dashboard .dashboard-container .recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 0 10px;
+}
+.dashboard .dashboard-container .recommendation-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.dashboard .dashboard-container .recommendation-card h3 {
+  font-size: 1.5rem;
+  color: #222;
+  margin-bottom: 10px;
+}
+.dashboard .dashboard-container .recommendation-card p {
+  font-size: 1rem;
+  color: #555;
+}
+.dashboard .dashboard-container .recommendation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.dashboard .dashboard-container .recommendation-card .rating-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+}
+.dashboard .dashboard-container .recommendation-card .thumbs-up-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: #4CAF50;
+}/*# sourceMappingURL=Dashboard.css.map */

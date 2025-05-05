@@ -6,6 +6,10 @@
   font-family: "Montserrat", serif;
 }
 
+html {
+  background: #000;
+}
+
 :root {
   --primaryColor: hsl(94, 55%, 56%);
   --hoverColor: hsl(93, 75%, 76%);
@@ -23,6 +27,55 @@
   --normalFontSize: .938rem;
   --smallFontSize: .813rem;
   --smallestFontSize: .75rem;
+  --color-bg1: rgb(131, 147, 28);
+  --color-bg2: rgb(60, 150, 65);
+  --color1: 18, 113, 255;
+  --color2: 221, 74, 255;
+  --color3: 100, 220, 255;
+  --color4: 200, 50, 50;
+  --color5: 180, 180, 50;
+  --circle-size: 80%;
+  --blending: hard-light;
+}
+
+@keyframes spinBlob {
+  0% {
+    transform: rotate(0deg) scale(2);
+  }
+  100% {
+    transform: rotate(1turn) scale(2);
+  }
+}
+.blob-outer-container {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+  inset: 0;
+  margin: auto;
+  filter: blur(100px);
+  opacity: 0.5;
+}
+.blob-outer-container .blob-inner-container {
+  border-radius: 99999px;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  min-width: 1000px;
+  overflow: hidden;
+  background: #fff;
+  transform: scale(0.9);
+}
+.blob-outer-container .blob-inner-container .blob {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  inset: 0;
+  margin: auto;
+  background: conic-gradient(from 0deg, #059212, #06D001, #9BEC00, #F3FF90);
+  animation: spinBlob 8s linear infinite;
 }
 
 
@@ -91,11 +144,10 @@ img, video {
 }
 
 .loginPage, .registerPage {
-  background: gray;
+  background: black;
   height: 100vh;
   width: 100%;
   margin: auto;
-  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 7px 50px rgb(214, 223, 213);
 }
@@ -319,6 +371,8 @@ img, video {
   }
   .loginPage .container .formDiv .headerDiv, .registerPage .container .formDiv .headerDiv {
     padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
   }
   .loginPage .container .formDiv .headerDiv img, .registerPage .container .formDiv .headerDiv img {
     width: 40px;

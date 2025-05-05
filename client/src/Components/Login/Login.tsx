@@ -8,119 +8,104 @@ import { AiOutlineSwapRight } from 'react-icons/ai';
 
 import "./Login.css"
 import "../../App.css"
-import video from '../../LoginAssets/rain.mp4'
-import logo from '../../LoginAssets/logo-leaf.png'
+import video from '../../LoginAssets/116660-708909854_small.mp4'
 
 
 const Login = () => {
-  //UseState Hook to store inputs
-  const [loginUserName, setLoginUserName] = useState('')
+  const [loginName, setLoginName] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const navigateTo = useNavigate()
-
-  //let us now show the message to the user
   const [loginStatus, setLoginStatus] = useState('')
   const [statusHolder, setStatusHolder] = useState('message')
 
-
-
-  //Onclick let us get what the user has entered
-  const loginUser = (e) => {  
-  //lets prevent submitting
+  const loginUser = (e) => { 
     e.preventDefault();
-    //we shall require Axios to create an API that connects to the server - lets install that
     Axios.post('http://localhost:3002/login', {
-      //create variable to send to the server through the route
-      LoginUserName: loginUserName,
+      LoginName: loginName,
       LoginPassword: loginPassword
     }). then((response)=>{
-      console.log(response.data.message)
-      //I want to catch the response first  - we have data successfully from the database and we can catch an error if the credentails are wrong
-      // if(LoginUserName == '' || LoginPassword)
-      if(response.data.message || loginUserName == '' || loginPassword == ''){
-        //if credential dont match
-        navigateTo('/') // so we shall navigate to the same login page
-        // console.log(response.data.message)
-        setLoginStatus(`Credentials Don't Exist!`)
-      }else{
-        navigateTo('/dashboard') //if the credentils match we shall navigate to the dashboard
+      if (response.data.message === 'Login successful') {
+        navigateTo(`/dashboard/${response.data.userID}`, { state: { name: response.data.user } });
+      } else {
+        setLoginStatus(`Credentials Don't Exist!`);
+        navigateTo('/');
       }
-
-
-    })
+    });
   }
+
   useEffect(()=>{
     if(loginStatus !== ''){
-      setStatusHolder('showMessage') // show message
+      setStatusHolder('showMessage')
       setTimeout(() => {
-        setStatusHolder('message') // hide it after 4s
+        setStatusHolder('message')
       }, 4000)
     }
   }, [loginStatus])
 
-  // lets clear the form on submit
   const onSubmit = () =>{
-    setLoginUserName('')
+    setLoginName('')
     setLoginPassword('')
   }
 
-
-
-
   return (
     <>
+      <div className="blob-outer-container">
+        <div className="blob-inner-container">
+          <div className="blob"></div>
+        </div>
+      </div>
       <div className='loginPage flex'>
         <div className="container flex">
           <div className="videoDiv">
             <video src= {video} autoPlay muted loop></video>
             <div className="textDiv">
-              <h2 className="title">Create And Sell Extraordinary Products</h2>
-              <p className='subtitle'>Adopt the peace of nature!</p>
+              <h2 className="title">Знайдіть час на відпочинок</h2>
+              <p className='subtitle'>"Світ такий великий. Пішли відкривати його" - Джордж Малорі</p>
+              {/* <p className='subtitle'>Джордж Малорі</p> */}
             </div>
 
             <div className="footerDiv flex">
-              <span className="text">Don't have an account?</span>
+              <span className="text">У вас немає облікового запису?</span>
               <Link to='/register'>
-                <button className='btn'> Sign Up</button>
+                <button className='btn'> Реєстрація</button>
               </Link>
             </div>
           </div>
 
           <div className="formDiv flex">
             <div className="headerDiv">
-              <img src={logo} alt="logo" />
-              <h3>Welcome Back!</h3>
+              <h3>З поверненням!</h3>
             </div>
 
             <form action="" className='form grid' onSubmit={onSubmit}>
               <span className={statusHolder}>{loginStatus}</span>
 
               <div className="inputDiv">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="name">Ім'я</label>
                 <div className="input flex">
                   <FaUserShield className='icon'/>
-                  <input type="text" id='username' placeholder='Enter Username' onChange={(event)=>{
-                    setLoginUserName(event.target.value)
+                  <input type="text" id='name' placeholder="Введіть ім'я" onChange={(event)=>{
+                    setLoginName(event.target.value)
                   } }/>
                 </div>
               </div>
 
               <div className="inputDiv">
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">Пароль</label>
                 <div className="input flex">
                   <BsFillShieldLockFill className='icon'/>
-                  <input type="password" id='password' placeholder='Enter Password' onChange={(event)=>{
+                  <input type="password" id='password' placeholder='Введіть пароль' onChange={(event)=>{
                     setLoginPassword(event.target.value)
                   } }/>
                 </div>
               </div>
 
               <button type='submit' className='btn flex' onClick={loginUser}>
-                <span>Login</span>
+                <span>Увійти</span>
                 <AiOutlineSwapRight className='icon'/>
               </button>
               
-              <span className='forgotPassword'>Forgot your password? <a href="">Click Here</a></span>
+              <span className='forgotPassword'>Забули пароль? <a href="">Натисніть</a></span>
 
             </form>
           </div>
