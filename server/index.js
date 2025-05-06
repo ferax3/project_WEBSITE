@@ -187,98 +187,112 @@ app.post('/login', (req, res)=>{
 
 app.get('/recommendations/:userID', (req, res) => {
     const userID = parseInt(req.params.userID);
-
-    db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
-        if (err) {
-            console.error('Error fetching feedbacks:', err);
-            return res.status(500).send('Database error');
+    // 1. Спочатку дізнаємось місто користувача
+    db.query('SELECT cityID FROM users WHERE userID = ?', [userID], (err, cityResult) => {
+        if (err || cityResult.length === 0) {
+          console.error('Error fetching cityID:', err);
+          return res.status(500).send('User or city not found');
         }
-
-        const userIDs = [...new Set(results.map(item => item.userID))];
-        const placeIDs = [...new Set(results.map(item => item.placeID))];
-
-        const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
-        const K = 10;
-
-        //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
-        console.log('Original Rating Matrix:');
-        console.table(R);
-
-        const randomMatrix = (rows, cols) =>
-            Array.from({ length: rows }, () =>
-                Array.from({ length: cols }, () => Math.random())
-            );
-
-        const P = randomMatrix(R.length, K);
-        const Q = randomMatrix(R[0].length, K);
-
-        //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
-        const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K);
-        // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
-
-        //! Зберігання в errors.csv
-        const fs = require('fs');
-        const csvData = errorsPerEpoch.map(({ epoch, error }) => `${epoch},${error}`).join('\n');
-        fs.writeFileSync('errors.csv', `Epoch,Error\n${csvData}`);
-
-      console.log('Error data saved to errors.csv');
-        const userIndex = userID - 1;
-        const userVector = finalP[userIndex];
-
-        const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
-
-         const predictedRatings = finalQ
-         .map((placeVector, index) => ({
-             placeID: index + 1,
-             rating: dotProduct(userVector, placeVector),
-             visited: R[userIndex][index] > 0
-         }))
-         .filter(item => !item.visited)
-         .sort((a, b) => b.rating - a.rating);
-
-        const placeIDsToFetch = predictedRatings.map(item => item.placeID);
-
-        //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
-        const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
-        );
-        const roundedMatrix = resultMatrix.map(row =>
-            row.map(value => Number(value.toFixed(2)))
-        ); 
-               // !Виведення матриці
-        console.log('Predicted rating matrix:');
-
-        console.table(roundedMatrix);
-        // console.table(resultMatrix);
-        //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
-        // console.log('Factorized Matrices:');
-        // console.log('P:', finalP);
-        // console.log('Q:', finalQ);
-        console.log("Error", finalE);
-
-        db.query(
-            'SELECT placeID, name, description FROM places WHERE placeID IN (?)',
-            [placeIDsToFetch],
-            (err, places) => {
-                if (err) {
-                    console.error('Error fetching places:', err);
-                    return res.status(500).send('Database error');
-                }
-
-                const recommendations = predictedRatings.map(item => {
-                    const place = places.find(p => p.placeID === item.placeID);
-                    return {
-                        placeID: item.placeID,
-                        name: place ? place.name : 'Невідоме місце',
-                        description: place ? place.description : 'Опис недоступний',
-                        predictedRating: Number(item.rating.toFixed(2))
-                    };
-                });
-
-                res.json(recommendations);
+    
+        const cityID = cityResult[0].cityID;
+        // 2. Отримуємо всі відгуки
+        db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
+            if (err) {
+                console.error('Error fetching feedbacks:', err);
+                return res.status(500).send('Database error');
             }
-        );
+
+            const userIDs = [...new Set(results.map(item => item.userID))];
+            const placeIDs = [...new Set(results.map(item => item.placeID))];
+
+            const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
+            const K = 10;
+
+            //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
+            console.log('Original Rating Matrix:');
+            console.table(R);
+
+            const randomMatrix = (rows, cols) =>
+                Array.from({ length: rows }, () =>
+                    Array.from({ length: cols }, () => Math.random())
+                );
+
+            const P = randomMatrix(R.length, K);
+            const Q = randomMatrix(R[0].length, K);
+
+            //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
+            const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K);
+            // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
+
+            //! Зберігання в errors.csv
+            const fs = require('fs');
+            const csvData = errorsPerEpoch.map(({ epoch, error }) => `${epoch},${error}`).join('\n');
+            fs.writeFileSync('errors.csv', `Epoch,Error\n${csvData}`);
+
+            console.log('Error data saved to errors.csv');
+            const userIndex = userID - 1;
+            const userVector = finalP[userIndex];
+
+            const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
+
+            const predictedRatings = finalQ
+            .map((placeVector, index) => ({
+                placeID: index + 1,
+                rating: dotProduct(userVector, placeVector),
+                visited: R[userIndex][index] > 0
+            }))
+            .filter(item => !item.visited)
+            .sort((a, b) => b.rating - a.rating);
+
+            const placeIDsToFetch = predictedRatings.map(item => item.placeID);
+
+            //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
+            const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
+            );
+            const roundedMatrix = resultMatrix.map(row =>
+                row.map(value => Number(value.toFixed(2)))
+            ); 
+                // !Виведення матриці
+            console.log('Predicted rating matrix:');
+
+            console.table(roundedMatrix);
+            // console.table(resultMatrix);
+            //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
+            // console.log('Factorized Matrices:');
+            // console.log('P:', finalP);
+            // console.log('Q:', finalQ);
+            console.log("Error", finalE);
+
+            db.query(
+                'SELECT placeID, name, description FROM places WHERE placeID IN (?) AND cityID = ?',
+                [placeIDsToFetch, cityID],
+                // 'SELECT placeID, name, description FROM places WHERE placeID IN (?)',
+                // [placeIDsToFetch],
+                (err, places) => {
+                    if (err) {
+                        console.error('Error fetching places:', err);
+                        return res.status(500).send('Database error');
+                    }
+
+                    const recommendations = predictedRatings
+                        .filter(item => places.some(p => p.placeID === item.placeID))
+                        .map(item => {
+                        const place = places.find(p => p.placeID === item.placeID);
+                        return {
+                            placeID: item.placeID,
+                            name: place ? place.name : 'Невідоме місце',
+                            description: place ? place.description : 'Опис недоступний',
+                            predictedRating: Number(item.rating.toFixed(2))
+                        };
+                    });
+
+                    res.json(recommendations);
+                }
+            );
+        });
     });
 });
+
 app.get('/places', (req, res) => {
     db.query('SELECT placeID, name, description, address FROM places', (err, results) => {
         if (err) {
@@ -340,3 +354,129 @@ app.post('/feedbacks', (req, res) => {
         }
     });
 });
+
+//Home.tsx
+app.get('/user/:userID', (req, res) => {
+    const userID = req.params.userID;
+
+    const sql = `
+        SELECT u.name, u.cityID, c.name AS cityName
+        FROM users u
+        JOIN cities c ON u.cityID = c.cityID
+        WHERE u.userID = ?
+    `;
+
+    db.query(sql, [userID], (err, results) => {
+        if (err) {
+            console.error('Error fetching user data:', err);
+            return res.status(500).send('Database error');
+        }
+
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).send('User not found');
+        }
+    });
+});
+app.get('/cities', (req, res) => {
+    db.query('SELECT * FROM cities', (err, results) => {
+      if (err) {
+        console.error('Error fetching cities:', err);
+        return res.status(500).send('Database error');
+      }
+      res.json(results);
+    });
+});
+app.put('/user/:userID/city', (req, res) => {
+    const userID = req.params.userID;
+    const { cityID } = req.body;
+
+    db.query(
+        'UPDATE users SET cityID = ? WHERE userID = ?',
+        [cityID, userID],
+        (err, result) => {
+        if (err) {
+            console.error('Error updating city:', err);
+            return res.status(500).send('Database error');
+        }
+        res.send({ message: 'City updated successfully' });
+        }
+    );
+});
+app.get('/top-places/:userID', (req, res) => {
+    const userID = req.params.userID;
+  
+    const sql = `
+      SELECT 
+        p.placeID,
+        p.name,
+        p.description,
+        ROUND(AVG(f.rating), 2) AS avgRating
+      FROM feedbacks f
+      JOIN places p ON f.placeID = p.placeID
+      JOIN users u ON u.cityID = p.cityID
+      WHERE u.userID = ?
+      GROUP BY p.placeID
+      ORDER BY avgRating DESC
+      LIMIT 5
+    `;
+  
+    db.query(sql, [userID], (err, results) => {
+      if (err) {
+        console.error('Error fetching top places:', err);
+        return res.status(500).send('Database error');
+      }
+      res.json(results);
+    });
+});
+app.get('/user-stats/:userID', (req, res) => {
+    const userID = req.params.userID;
+  
+    const sql = `
+      SELECT 
+        COUNT(DISTINCT f.placeID) AS visitedCount,
+        ROUND(AVG(f.rating), 2) AS avgRating,
+        ROUND(
+          COUNT(DISTINCT f.placeID) / (
+            SELECT COUNT(*) FROM places WHERE cityID = u.cityID
+          ) * 100,
+          2
+        ) AS visitedPercent
+      FROM feedbacks f
+      JOIN places p ON f.placeID = p.placeID
+      JOIN users u ON u.userID = ?
+      WHERE p.cityID = u.cityID AND f.userID = u.userID
+    `;
+  
+    db.query(sql, [userID], (err, results) => {
+      if (err) {
+        console.error('Error fetching user stats:', err);
+        return res.status(500).send('Database error');
+      }
+  
+      res.json(results[0]);
+    });
+});
+app.get('/favourites/:userID', (req, res) => {
+    const userID = req.params.userID;
+  
+    const sql = `
+        SELECT f.placeID, p.name, p.description
+        FROM favourites f
+        JOIN places p ON f.placeID = p.placeID
+        JOIN users u ON f.userID = u.userID
+        WHERE f.userID = ? AND p.cityID = u.cityID
+        ORDER BY f.datetime DESC
+        LIMIT 5
+    `;
+  
+    db.query(sql, [userID], (err, results) => {
+      if (err) {
+        console.error('Error fetching favourites:', err);
+        return res.status(500).send('Database error');
+      }
+  
+      res.json(results);
+    });
+  });
