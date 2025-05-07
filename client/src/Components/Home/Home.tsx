@@ -1,5 +1,8 @@
 import './Home.css'
-import { FaUser, FaPlus, FaEdit, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaGrip, FaHeart, FaDiceFive} from "react-icons/fa6";
+
+import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Axios from 'axios';
@@ -167,11 +170,15 @@ const Home = () => {
                 </div>
                 <div className=" item rounded-left div3"> 
                     <div className='z-index-2'>
-                        меню
-                        <div className="circle-button"><FaUser /></div>
-                        <div className="circle-button"><FaPlus /></div>
-                        <div className="circle-button"><FaEdit /></div>
-                        <div className="circle-button"><FaSignOutAlt /></div>
+                        <Link to={`/home/${userID}`}>
+                            <div className="circle-button"><FaUser /></div>
+                        </Link>
+                        <Link to={`/catalog/${userID}`}>
+                            <div className="circle-button"><FaGrip /></div>
+                        </Link>
+                        <div className="circle-button"><FaHeart /></div>
+                        <div className="circle-button"><FaDiceFive /></div>
+                        <div className="circle-button red"><FaSignOutAlt /></div>
                     </div>
                 </div>
                 <div className="div4 item"> 

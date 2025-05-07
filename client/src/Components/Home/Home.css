@@ -158,16 +158,16 @@
 }
 .main-page .parent .div3 {
   grid-area: 4/1/10/2;
+  margin-right: 20px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
-  border-top-right-radius: 25px;
-  border-bottom-right-radius: 25px;
-  justify-self: baseline;
+  border-top-right-radius: 150px;
+  border-bottom-right-radius: 150px;
 }
 .main-page .parent .div3 .circle-button {
-  width: 40px;
-  height: 40px;
-  background-color: #059212;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(98, 179, 0, 0.9);
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.6);
@@ -178,9 +178,17 @@
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.3s ease;
   color: black;
-  font-size: 24px;
+  font-size: 28px;
+  margin-bottom: 5px;
 }
 .main-page .parent .div3 .circle-button:hover {
   transform: scale(1.1);
   background-color: rgba(255, 255, 255, 0.5);
+}
+.main-page .parent .div3 .red {
+  background-color: rgb(241, 52, 52);
+}
+.main-page .parent .div3 .red:hover {
+  transform: scale(1.1);
+  background-color: rgb(250, 10, 10);
 }/*# sourceMappingURL=Home.css.map */

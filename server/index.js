@@ -545,3 +545,16 @@ app.get('/tags', (req, res) => {
         res.json(results);
     });
 });
+//Catalog.tsx
+app.get('/places/by-city/:cityID', (req, res) => {
+    const cityID = req.params.cityID;
+    db.query('SELECT placeID, name, description, imagePath FROM places WHERE cityID = ?', [cityID], (err, results) => {
+      if (err) {
+        console.error('Error fetching places by city:', err);
+        return res.status(500).send('Database error');
+      }
+      res.json(results);
+    });
+});
+app.use('/images', express.static('public/images'));
+// app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
