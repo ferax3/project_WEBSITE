@@ -13,6 +13,10 @@ const Home = () => {
     const [userStats, setUserStats] = useState(null);
     const [recommendations, setRecommendations] = useState([]);
     const [favourites, setFavourites] = useState([]);
+    const [newPlaces, setNewPlaces] = useState([]);
+    const [selectedTag, setSelectedTag] = useState('');
+    const [tags, setTags] = useState([]);
+    const [taggedRecommendations, setTaggedRecommendations] = useState([]);
 
     useEffect(() => {
         Axios.get(`http://localhost:3002/user/${userID}`)
@@ -21,8 +25,9 @@ const Home = () => {
                 setUserName(response.data.name);
                 setCityID(Number(response.data.cityID));
                 fetchTopPlaces(userID);
-                fetchUserStats();
-                fetchRecommendations();
+                fetchUserStats();                
+                fetchNewPlaces();
+                fetchRecommendations();                
                 fetchFavourites();
             }
             })
@@ -37,10 +42,14 @@ const Home = () => {
             .then((res) => {
                 setTopPlaces(res.data);
         })
-        .catch((err) => {
+            .catch((err) => {
             console.error('Error fetching top places:', err);
         });
-      }, [userID]);
+        Axios.get('http://localhost:3002/tags')
+            .then(res => setTags(res.data))
+            .catch(err => console.error('Error fetching tags:', err));
+    }, [userID]);
+
     const handleCityChange = (e) => {
         const newCityID = parseInt(e.target.value);
         setCityID(newCityID);
@@ -51,9 +60,12 @@ const Home = () => {
           .then((res) => {
             console.log('Місто оновлено');
             fetchTopPlaces(userID);
-            fetchUserStats();
-            fetchRecommendations();
+            fetchUserStats();         
+            fetchNewPlaces();
+            fetchRecommendations(); 
+
             fetchFavourites();
+
           })
           .catch((err) => {
             console.error('Помилка при оновленні міста', err);
@@ -81,6 +93,18 @@ const Home = () => {
         Axios.get(`http://localhost:3002/recommendations/${userID}`)
           .then((res) => {
             setRecommendations(res.data);
+            //!ADD
+            const places = res.data;
+            const placeIDs = places.map(p => p.placeID);
+            Axios.get(`http://localhost:3002/place-tags?ids=${placeIDs.join(',')}`)
+                .then(tagRes => {
+                const tagMap = tagRes.data; // { placeID: [теги] }
+                const enriched = places.map(p => ({
+                    ...p,
+                    tags: tagMap[p.placeID] || []
+                }));
+                setTaggedRecommendations(enriched);
+        });
           })
           .catch((err) => {
             console.error('Error fetching recommendations:', err);
@@ -95,7 +119,20 @@ const Home = () => {
             console.error('Error fetching favourites:', err);
           });
     };
-      
+    const fetchNewPlaces = () => {
+        Axios.get(`http://localhost:3002/new-places/${userID}`)
+          .then(res => {
+          setNewPlaces(res.data);
+        })
+        .catch((err) => {
+            console.error('Error fetching new places:', err);
+        });
+    };
+    const filteredRecommendations = selectedTag
+    ? taggedRecommendations.filter(
+        place => place.tags?.includes(selectedTag) && place.predictedRating > 3
+    )
+    : [];
         
     return (
         <div className='main-page'>
@@ -139,14 +176,29 @@ const Home = () => {
                 </div>
                 <div className="div4 item"> 
                     <div className="z-index-2">
-                        <h2>Рекомендовані місця за тегом</h2>
-                        <ul>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                        </ul>
+                        <h2>Рекомендовані місця за&nbsp;
+                            <select id="tag-select" value={selectedTag} onChange={e => setSelectedTag(e.target.value)}>
+                                <option disabled value="">тегом</option>
+                                {tags.map(tag => (
+                                <option key={tag.tagID} value={tag.name}>
+                                    {tag.name}
+                                </option>
+                                ))}
+                            </select>
+                            </h2>
+                            <ul>
+                            {selectedTag ? (
+                                filteredRecommendations.length > 0 ? (
+                                filteredRecommendations.slice(0, 5).map(place => (
+                                    <li key={place.placeID}>{place.name}</li>
+                                ))
+                                ) : (
+                                <li>Немає місць за обраним тегом</li>
+                                )
+                            ) : (
+                                <li>Оберіть тег, щоб побачити місця</li>
+                            )}
+                            </ul>
                     </div>
                 </div>
                 <div className="div5 item">
@@ -171,7 +223,7 @@ const Home = () => {
                         {recommendations.length > 0 ? (
                             recommendations.slice(0, 5).map((place) => (
                             <li key={place.placeID}>
-                                {place.name} — ⭐ {place.predictedRating}
+                                {place.name} — {place.predictedRating}
                             </li>
                             ))
                         ) : (
@@ -182,13 +234,15 @@ const Home = () => {
                 <div className="div7 item"> 
                     <div className='z-index-2'>
                         <h2>Нові місця</h2>
-                        <ul>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                            <li>Місце</li>
-                        </ul>
+                        {newPlaces.length > 0 ? (
+                            newPlaces.map(place => (
+                            <li key={place.placeID}>
+                                {place.name}
+                            </li>
+                            ))
+                        ) : (
+                            <li>Немає нових місць</li>
+                        )}
                     </div> 
                 </div>
                 <div className="div8 item"> 
@@ -197,7 +251,7 @@ const Home = () => {
                         <ul>
                         {topPlaces.map(place => (
                             <li key={place.placeID}>
-                            {place.name} – ⭐ {place.avgRating}
+                            {place.name} – {place.avgRating}
                             </li>
                         ))}
                         </ul>

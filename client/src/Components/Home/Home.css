@@ -103,6 +103,27 @@
 .main-page .parent .div4 {
   grid-area: 5/2/9/3;
 }
+.main-page .parent .div4 select {
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.main-page .parent .div4 select:hover {
+  background-color: #d6f6c9;
+}
+.main-page .parent .div4 select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #06D001;
+}
+.main-page .parent .div4 option {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
 .main-page .parent .div5 {
   grid-area: 9/2/13/3;
 }

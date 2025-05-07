@@ -79,9 +79,37 @@
                 padding: 8px 14px;
                 border-radius: 12px;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-              }
-            
-              select {
+                }
+                
+                select {
+                    font-size: 16px;
+                    padding: 6px 10px;
+                    border-radius: 8px;
+                    border: none;
+                    background-color: rgba(255, 255, 255, 0.3);
+                    color: #000;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                
+                select:hover {
+                    background-color: #d6f6c9;
+                }
+                
+                select:focus {
+                    outline: none;
+                    box-shadow: 0 0 0 2px #06D001;
+                }
+                
+                option {
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #000;
+                }
+        }
+    
+        .div4 { 
+            grid-area: 5 / 2 / 9 / 3; 
+            select {
                 font-size: 16px;
                 padding: 6px 10px;
                 border-radius: 8px;
@@ -90,25 +118,21 @@
                 color: #000;
                 cursor: pointer;
                 transition: all 0.3s ease;
-              }
+            }
             
-              select:hover {
+            select:hover {
                 background-color: #d6f6c9;
-              }
+            }
             
-              select:focus {
+            select:focus {
                 outline: none;
                 box-shadow: 0 0 0 2px #06D001;
-              }
+            }
             
-              option {
+            option {
                 background: rgba(255, 255, 255, 0.9);
                 color: #000;
-              }
-        }
-    
-        .div4 { 
-            grid-area: 5 / 2 / 9 / 3; 
+            }
         }
         .div5 { grid-area: 9 / 2 / 13 / 3; }
         .div6 { grid-area: 4 / 3 / 8 / 4; }

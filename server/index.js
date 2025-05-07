@@ -479,4 +479,69 @@ app.get('/favourites/:userID', (req, res) => {
   
       res.json(results);
     });
-  });
+});
+app.get('/new-places/:userID', (req, res) => {
+    const userID = parseInt(req.params.userID);
+
+    // 1. Дізнаємось місто користувача
+    db.query('SELECT cityID FROM users WHERE userID = ?', [userID], (err, userResult) => {
+    if (err || userResult.length === 0) {
+      console.error('Error fetching user cityID:', err);
+      return res.status(500).send('User not found');
+    }
+    const cityID = userResult[0].cityID;
+    
+        //!НАДАЛІ ЗМІНИТИ З 8 на МЕНШЕ ЧИСЛО!
+        const sql = `
+            SELECT p.placeID, p.name, p.description, COUNT(f.feedbackID) AS feedbackCount
+            FROM places p
+            LEFT JOIN feedbacks f ON p.placeID = f.placeID
+            WHERE p.cityID = ?
+            GROUP BY p.placeID
+            HAVING feedbackCount < 9
+            ORDER BY p.addedDate DESC
+            LIMIT 5
+        `;
+    
+        db.query(sql, [cityID], (err, results) => {
+        if (err) {
+            console.error('Error fetching new places:', err);
+            return res.status(500).send('Database error');
+        }
+    
+        res.json(results);
+        });
+    });
+});
+app.get('/place-tags', (req, res) => {
+    const ids = req.query.ids?.split(',').map(Number);
+    if (!ids || ids.length === 0) return res.json({});
+    
+    const sql = `
+      SELECT pt.placeID, t.name AS tag
+      FROM placetag pt
+      JOIN tags t ON pt.tagID = t.tagID
+      WHERE pt.placeID IN (?)
+    `;
+    db.query(sql, [ids], (err, results) => {
+      if (err) return res.status(500).send('Database error');
+      const tagMap = {};
+      results.forEach(row => {
+        if (!tagMap[row.placeID]) tagMap[row.placeID] = [];
+        tagMap[row.placeID].push(row.tag);
+      });
+      res.json(tagMap);
+    });
+});
+app.get('/tags', (req, res) => {
+    const sql = 'SELECT * FROM tags';
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching tags:', err);
+            return res.status(500).send('Database error');
+        }
+
+        res.json(results);
+    });
+});
