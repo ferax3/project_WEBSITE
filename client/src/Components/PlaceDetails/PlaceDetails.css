@@ -1,0 +1,136 @@
+.details-page .blob-outer-container {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  inset: 0;
+  margin: auto;
+  filter: blur(100px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.details-page .blob-outer-container .blob-inner-container {
+  border-radius: 99999px;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  min-width: 1000px;
+  overflow: hidden;
+  background: #fff;
+  transform: scale(0.9);
+}
+.details-page .blob-outer-container .blob-inner-container .blob {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  inset: 0;
+  margin: auto;
+  background: conic-gradient(from 0deg, #059212, #06D001, #9BEC00, #F3FF90);
+  animation: spinBlob 8s linear infinite;
+}
+.details-page .top-part {
+  display: flex;
+  flex-direction: row;
+  min-height: 500px;
+  margin-right: 20px;
+}
+.details-page .top-part .image {
+  width: 40%;
+  height: 730px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+  z-index: 10;
+  overflow: hidden;
+  position: relative;
+}
+.details-page .top-part .image img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+.details-page .top-part .info {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  width: 60%;
+}
+.details-page .top-part .info .header {
+  background: rgba(225, 255, 0, 0.9);
+  border-radius: 15px;
+  border: 1px solid rgba(225, 255, 0, 0.9);
+  align-self: flex-end;
+  padding: 16px 18px;
+  margin-right: 20px;
+}
+.details-page .top-part .info .header .city {
+  position: relative;
+  z-index: 5;
+  font-size: 18px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  justify-self: flex-end;
+  z-index: 10px;
+}
+.details-page .top-part .info .card-info {
+  margin: 120px 70px;
+  background: rgba(225, 255, 0, 0.9);
+  border-radius: 15px;
+  border: 1px solid rgba(225, 255, 0, 0.9);
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.details-page .top-part .info .card-info h1 {
+  text-align: center;
+  padding-top: 20px;
+  position: relative;
+  z-index: 4;
+}
+.details-page .top-part .info .card-info .tags-mark {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 20px 0;
+  width: 100%;
+}
+.details-page .top-part .info .card-info .tags-mark .tags {
+  margin-top: 10px;
+  margin-left: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.details-page .top-part .info .card-info .tags-mark .tags .tag {
+  position: relative;
+  z-index: 5;
+  background-color: #9eda82;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  border: 1px solid #06D001;
+}
+.details-page .top-part .info .card-info .tags-mark .marks {
+  font-size: 15px;
+}
+.details-page .top-part .info .card-info .address {
+  position: relative;
+  z-index: 5;
+}
+.details-page .top-part .info .card-info .short {
+  position: relative;
+  z-index: 5;
+}/*# sourceMappingURL=PlaceDetails.css.map */

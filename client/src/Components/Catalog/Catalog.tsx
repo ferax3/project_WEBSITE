@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { useEffect, useState } from 'react';
 import Axios from 'axios';
-import './Catalog.css'; // використай ті самі стилі
+import './Catalog.css';
 import { useParams } from 'react-router-dom';
 
 const Catalog = () => {
@@ -95,7 +95,6 @@ const Catalog = () => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             <label htmlFor="tag-filter" style={{ marginLeft: '12px' }}>
-                                {/* <FaGrip />&nbsp; */}
                                 <select
                                     id="tag-filter"
                                     className="tag-select"
@@ -144,20 +143,22 @@ const Catalog = () => {
 
                 <div className="places-grid">
                 {filteredPlaces.map((place) => (
-                    <div className="item places-card" key={place.placeID}>
-                        <img src={`http://localhost:3002${place.imagePath}`} alt={place.name} className="place-image" />
-                        <div className="z-index-2">
-                            <h3>{place.name}</h3>
-                            <p>{place.description || 'Опис відсутній'}</p>
-                            {place.tags && place.tags.length > 0 && (
-                                <div className="tags">
-                                    {place.tags.map((tag, index) => (
-                                    <span key={index} className="tag">{tag}</span>
-                                    ))}
-                                </div>
-                            )}
+                    <Link to={`/place/${userID}/${place.placeID}`} className="place-link">
+                        <div className="item places-card" key={place.placeID}>
+                            <img src={`http://localhost:3002${place.imagePath}`} alt={place.name} className="place-image" />
+                            <div className="z-index-2">
+                                <h3>{place.name}</h3>
+                                <p>{place.description || 'Опис відсутній'}</p>
+                                {place.tags && place.tags.length > 0 && (
+                                    <div className="tags">
+                                        {place.tags.map((tag, index) => (
+                                        <span key={index} className="tag">{tag}</span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </Link>
                 ))}
                 </div>
             </div>

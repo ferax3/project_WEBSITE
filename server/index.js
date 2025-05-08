@@ -590,22 +590,16 @@ app.get('/places/by-city/:cityID', (req, res) => {
         res.json(enrichedPlaces);
         });
     });
-    // db.query('SELECT placeID, name, description, imagePath FROM places WHERE cityID = ?', [cityID], (err, results) => {
-    //   if (err) {
-    //     console.error('Error fetching places by city:', err);
-    //     return res.status(500).send('Database error');
-    //   }
-    //   res.json(results);
-    // });
 });
 app.use('/images', express.static('public/images'));
-Axios.get(`http://localhost:3002/places/by-city/${cityID}`).then((res) => {
-  setPlaces(res.data);
 
-  // зібрати всі унікальні теги
-  const allTags = new Set();
-  res.data.forEach(p => {
-    (p.tags || []).forEach(tag => allTags.add(tag));
-  });
-  setTags([...allTags]);
+//PlaceDetails.tsx
+app.get('/place/:placeID', (req, res) => {
+    const placeID = req.params.placeID;
+    const sql = 'SELECT * FROM places WHERE placeID = ?';
+    db.query(sql, [placeID], (err, results) => {
+      if (err) return res.status(500).send('Database error');
+      if (results.length === 0) return res.status(404).send('Place not found');
+      res.json(results[0]);
+    });
 });

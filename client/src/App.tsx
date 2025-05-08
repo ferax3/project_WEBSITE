@@ -4,6 +4,7 @@ import Register from './Components/Register/Register'
 import Places from './Components/Places/Places';
 import Home from './Components/Home/Home';
 import Catalog from './Components/Catalog/Catalog';
+import PlaceDetails from './Components/PlaceDetails/PlaceDetails';
 
 import {
   createBrowserRouter,
@@ -20,7 +21,8 @@ const router = createBrowserRouter([
   { path: "/places/:userID", element: <Places /> },
   { path: "/home/:userID", element: <Home />},
   { path: "/home/:userID", element: <Home />},
-  { path: "/catalog/:userID", element: <Catalog /> }
+  { path: "/catalog/:userID", element: <Catalog /> },
+  { path: "/place/:userID/:placeID", element: <PlaceDetails /> }
 ])
 function App() {
 
