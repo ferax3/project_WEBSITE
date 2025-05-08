@@ -71,7 +71,8 @@
   gap: 10px;
   color: #000;
   background: rgba(255, 255, 255, 0.25);
-  padding: 8px 30px;
+  padding: 8px 10px;
+  margin: 0 20px;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -91,6 +92,27 @@
 .catalog-page .parent .header .div1 .search-wrapper input:focus {
   outline: none;
   box-shadow: 0 0 0 2px #06D001;
+}
+.catalog-page .parent .header .div1 .tag-select {
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.catalog-page .parent .header .div1 .tag-select:hover {
+  background-color: #d6f6c9;
+}
+.catalog-page .parent .header .div1 .tag-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #06D001;
+}
+.catalog-page .parent .header .div1 .tag-select option {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
 }
 .catalog-page .parent .header .div2 {
   grid-area: 2/4/3/5;
@@ -145,28 +167,50 @@
   background: rgba(225, 255, 0, 0.9);
   border-radius: 15px;
   border: 1px solid rgba(225, 255, 0, 0.9);
-  padding: 16px;
-  min-height: 260px;
+  padding: 0;
+  min-height: 300px;
   display: flex;
-  cursor: pointer;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: row;
+  overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 .catalog-page .parent .places-card .place-image {
-  width: 100%;
-  height: 150px;
+  width: 40%;
+  height: 100%;
   -o-object-fit: cover;
      object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  z-index: 6;
 }
 .catalog-page .parent .places-card .z-index-2 {
-  z-index: 6;
+  width: 60%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
 }
-.catalog-page .parent .places-card h3 {
-  margin-bottom: 10px;
+.catalog-page .parent .places-card .z-index-2 h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+}
+.catalog-page .parent .places-card .z-index-2 p {
+  margin: 0;
+  font-size: 16px;
+}
+.catalog-page .parent .places-card .z-index-2 .tags {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.catalog-page .parent .places-card .z-index-2 .tags .tag {
+  background-color: #9eda82;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  border: 1px solid #06D001;
 }
 .catalog-page .parent .places-card:hover {
   transform: scale(1.02);

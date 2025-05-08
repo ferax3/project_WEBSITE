@@ -178,7 +178,9 @@ const Home = () => {
                         </Link>
                         <div className="circle-button"><FaHeart /></div>
                         <div className="circle-button"><FaDiceFive /></div>
-                        <div className="circle-button red"><FaSignOutAlt /></div>
+                        <Link to="/">
+                            <div className="circle-button red"><FaSignOutAlt /></div>
+                        </Link>  
                     </div>
                 </div>
                 <div className="div4 item"> 

@@ -41,6 +41,7 @@
             }
         }
     }
+
     .parent {
         display: flex;
         flex-direction: column;
@@ -50,18 +51,22 @@
         height: 100vh;
         width: 100%;
         overflow-x: hidden;
+
         .header{
             display: grid;
             grid-template-columns: 0.25fr repeat(3, 1fr);
             grid-template-rows: 0.5fr;
             grid-column-gap: 15px;
             grid-row-gap: 15px; 
+
             .div1 { 
                 grid-area: 2 / 2 / 3 / 3; 
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
+
+
                 .search-wrapper {
                     display: flex;
                     align-items: center;
@@ -70,9 +75,11 @@
                     gap: 10px;
                     color: #000;
                     background: rgba(255, 255, 255, 0.25);
-                    padding: 8px 30px;
+                    padding: 8px 10px;
+                    margin: 0 20px;
                     border-radius: 12px;
                     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
                     input {
                         font-size: 16px;
                         padding: 6px 10px;
@@ -84,13 +91,38 @@
                         width: 200px;
                     }
                   
-                        input:hover {
-                            background-color: #d6f6c9;
+                    input:hover {
+                        background-color: #d6f6c9;
                     }
                   
-                        input:focus {
-                            outline: none;
-                            box-shadow: 0 0 0 2px #06D001;
+                    input:focus {
+                        outline: none;
+                        box-shadow: 0 0 0 2px #06D001;
+                    }
+                }
+
+                .tag-select {
+                    font-size: 16px;
+                    padding: 6px 10px;
+                    border-radius: 8px;
+                    border: none;
+                    background-color: rgba(255, 255, 255, 0.3);
+                    color: #000;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                
+                    &:hover {
+                      background-color: #d6f6c9;
+                    }
+                
+                    &:focus {
+                      outline: none;
+                      box-shadow: 0 0 0 2px #06D001;
+                    }
+                
+                    option {
+                      background: rgba(255, 255, 255, 0.9);
+                      color: #000;
                     }
                 }
             }
@@ -111,32 +143,32 @@
                     padding: 8px 14px;
                     border-radius: 12px;
                     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-                    }
+                }
                     
-                    select {
-                        font-size: 16px;
-                        padding: 6px 10px;
-                        border-radius: 8px;
-                        border: none;
-                        background-color: rgba(255, 255, 255, 0.3);
-                        color: #000;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                    }
+                select {
+                    font-size: 16px;
+                    padding: 6px 10px;
+                    border-radius: 8px;
+                    border: none;
+                    background-color: rgba(255, 255, 255, 0.3);
+                    color: #000;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
                     
-                    select:hover {
-                        background-color: #d6f6c9;
-                    }
+                select:hover {
+                    background-color: #d6f6c9;
+                }
                     
-                    select:focus {
-                        outline: none;
-                        box-shadow: 0 0 0 2px #06D001;
-                    }
-                    
-                    option {
-                        background: rgba(255, 255, 255, 0.9);
-                        color: #000;
-                    }
+                select:focus {
+                    outline: none;
+                    box-shadow: 0 0 0 2px #06D001;
+                }
+                
+                option {
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #000;
+                }
             }
         }
         .places-grid {
@@ -152,29 +184,53 @@
             background: rgba(225, 255, 0, 0.9);
             border-radius: 15px;
             border: 1px solid rgba(225, 255, 0, 0.9);
-            padding: 16px;
-            min-height: 260px;
+            padding: 0;
+            min-height: 300px;
             display: flex;
-            cursor: pointer;
-            flex-direction: column;
-            justify-content: space-between;
+            flex-direction: row;
+            overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.3s ease;
+            cursor: pointer;
 
             .place-image {
-                width: 100%;
-                height: 150px;
+                width: 40%; // ліва частина
+                height: 100%;
                 object-fit: cover;
-                border-radius: 10px;
-                margin-bottom: 10px;
-                z-index: 6;
             }
 
             .z-index-2 {
-                z-index: 6;
-            }
+                width: 60%; // права частина
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                z-index: 2;
 
-            h3 {
-                margin-bottom: 10px;
+                h3 {
+                margin: 0 0 10px 0;
+                font-size: 20px;
+                }
+
+                p {
+                margin: 0;
+                font-size: 16px;
+                }
+                .tags {
+                    margin-top: 10px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                  
+                    .tag {
+                      background-color: #9eda82;
+                      padding: 4px 8px;
+                      border-radius: 8px;
+                      font-size: 14px;
+                      font-weight: 500;
+                      color: #333;
+                      border: 1px solid #06D001; //#b5ec9c;
+                    }
+                }
             }
 
             &:hover {

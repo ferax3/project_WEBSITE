@@ -548,13 +548,64 @@ app.get('/tags', (req, res) => {
 //Catalog.tsx
 app.get('/places/by-city/:cityID', (req, res) => {
     const cityID = req.params.cityID;
-    db.query('SELECT placeID, name, description, imagePath FROM places WHERE cityID = ?', [cityID], (err, results) => {
-      if (err) {
-        console.error('Error fetching places by city:', err);
-        return res.status(500).send('Database error');
-      }
-      res.json(results);
+    const placeSql = `
+        SELECT placeID, name, description, imagePath
+        FROM places
+        WHERE cityID = ?
+    `;
+
+    db.query(placeSql, [cityID], (err, places) => {
+        if (err) {
+            console.error('Error fetching places:', err);
+            return res.status(500).send('Database error');
+        }
+
+        const placeIDs = places.map(p => p.placeID);
+        if (placeIDs.length === 0) return res.json([]);
+
+        const tagSql = `
+            SELECT pt.placeID, t.name AS tag
+            FROM placetag pt
+            JOIN tags t ON pt.tagID = t.tagID
+            WHERE pt.placeID IN (?)
+        `;
+
+        db.query(tagSql, [placeIDs], (err, tagResults) => {
+        if (err) {
+            console.error('Error fetching tags:', err);
+            return res.status(500).send('Database error');
+        }
+
+        const tagMap = {};
+        tagResults.forEach(({ placeID, tag }) => {
+            if (!tagMap[placeID]) tagMap[placeID] = [];
+            tagMap[placeID].push(tag);
+        });
+
+        const enrichedPlaces = places.map(place => ({
+            ...place,
+            tags: tagMap[place.placeID] || []
+        }));
+
+        res.json(enrichedPlaces);
+        });
     });
+    // db.query('SELECT placeID, name, description, imagePath FROM places WHERE cityID = ?', [cityID], (err, results) => {
+    //   if (err) {
+    //     console.error('Error fetching places by city:', err);
+    //     return res.status(500).send('Database error');
+    //   }
+    //   res.json(results);
+    // });
 });
 app.use('/images', express.static('public/images'));
-// app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
+Axios.get(`http://localhost:3002/places/by-city/${cityID}`).then((res) => {
+  setPlaces(res.data);
+
+  // зібрати всі унікальні теги
+  const allTags = new Set();
+  res.data.forEach(p => {
+    (p.tags || []).forEach(tag => allTags.add(tag));
+  });
+  setTags([...allTags]);
+});
