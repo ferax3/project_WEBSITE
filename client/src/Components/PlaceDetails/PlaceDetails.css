@@ -165,6 +165,18 @@
   justify-content: center;
   flex-direction: column;
   padding: 30px 50px;
+  position: relative;
+}
+.details-page .top-part .info .card-info .favourite-icon {
+  position: absolute;
+  top: 25px;
+  right: 35px;
+  font-size: 24px;
+  z-index: 10;
+  transition: transform 0.2s ease;
+}
+.details-page .top-part .info .card-info .favourite-icon:hover {
+  transform: scale(1.2);
 }
 .details-page .top-part .info .card-info h1 {
   text-align: center;
@@ -182,11 +194,11 @@
 }
 .details-page .top-part .info .card-info .tags-mark .tags {
   width: 50%;
-  margin-top: 10px;
-  margin-left: 20px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  display: flex;
+  align-items: baseline;
 }
 .details-page .top-part .info .card-info .tags-mark .tags .tag {
   position: relative;
@@ -203,8 +215,19 @@
   position: relative;
   z-index: 7;
 }
-.details-page .top-part .info .card-info .tags-mark .marks {
-  font-size: 15px;
+.details-page .top-part .info .card-info .tags-mark .rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  z-index: 5;
+}
+.details-page .top-part .info .card-info .tags-mark .rating .star {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.details-page .top-part .info .card-info .tags-mark .rating .star:hover {
+  transform: scale(1.2);
 }
 .details-page .top-part .info .card-info .address {
   position: relative;
@@ -218,6 +241,7 @@
 .details-page .deep-info {
   margin-right: 50px;
   margin-left: 120px;
+  margin-bottom: 50px;
   padding: 30px 50px;
   background: rgba(225, 255, 0, 0.9);
   border-radius: 15px;
@@ -247,6 +271,34 @@
   position: relative;
   z-index: 5;
 }
+.details-page .deep-info .comments-section .add-comment {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 5;
+}
+.details-page .deep-info .comments-section .add-comment textarea {
+  padding: 10px;
+  font-size: 14px;
+  resize: vertical;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.details-page .deep-info .comments-section .add-comment button {
+  align-self: flex-start;
+  padding: 6px 18px;
+  border: none;
+  background-color: #ffd700;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.details-page .deep-info .comments-section .add-comment button:hover {
+  background-color: #f1c40f;
+}
 .details-page .deep-info .comments-section .comment {
   margin-bottom: 20px;
   background: rgba(255, 255, 255, 0.3);
@@ -263,4 +315,64 @@
 .details-page .deep-info .comments-section .comment strong {
   position: relative;
   z-index: 5;
+}
+.details-page .deep-info .similar-places-section {
+  margin: 40px 120px;
+}
+.details-page .deep-info .similar-places-section .section-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  z-index: 3;
+  position: relative;
+}
+.details-page .deep-info .similar-places-section .carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+.details-page .deep-info .similar-places-section .similar-card {
+  flex: 0 0 420px;
+  display: flex;
+  flex-direction: row;
+  background: rgba(225, 255, 0, 0.9);
+  border: 1px solid rgba(225, 255, 0, 0.9);
+  border-radius: 15px;
+  text-decoration: none;
+  color: black;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+.details-page .deep-info .similar-places-section .similar-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 5;
+}
+.details-page .deep-info .similar-places-section .similar-card .image {
+  width: 40%;
+  position: relative;
+  z-index: 5;
+}
+.details-page .deep-info .similar-places-section .similar-card .image img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+.details-page .deep-info .similar-places-section .similar-card .content {
+  width: 60%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.details-page .deep-info .similar-places-section .similar-card .content h3 {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+.details-page .deep-info .similar-places-section .similar-card .content p {
+  font-size: 15px;
 }/*# sourceMappingURL=PlaceDetails.css.map */

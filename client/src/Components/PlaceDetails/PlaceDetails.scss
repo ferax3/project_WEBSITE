@@ -179,6 +179,19 @@
                 justify-content: center;
                 flex-direction: column;
                 padding: 30px 50px;
+                position: relative;
+                .favourite-icon {
+                    position: absolute;
+                    top: 25px;
+                    right: 35px;
+                    font-size: 24px;
+                    z-index: 10;
+                    transition: transform 0.2s ease;
+
+                    &:hover {
+                        transform: scale(1.2);
+                    }
+                }
                 h1{
                     text-align: center;
                     position: relative;
@@ -194,11 +207,11 @@
                     width: 100%;
                     .tags{
                         width: 50%;
-                        margin-top: 10px;
-                        margin-left: 20px;
                         display: flex;
                         flex-wrap: wrap;
                         gap: 6px;
+                        display: flex;
+                        align-items: baseline;
 
                         .tag{
                             position: relative;
@@ -217,8 +230,19 @@
                           
                         }
                     }
-                    .marks{
-                        font-size: 15px;
+                    .rating{
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        position: relative;
+                        z-index: 5;    
+                        .star {
+                            cursor: pointer;
+                            transition: transform 0.2s ease;
+                            &:hover {
+                            transform: scale(1.2);
+                            }
+                        }
                     }
                 }
                 .address{
@@ -238,6 +262,7 @@
     .deep-info{
         margin-right: 50px;
         margin-left: 120px;
+        margin-bottom: 50px;
         padding: 30px 50px;
         background: rgba(225, 255, 0, 0.9);
         border-radius: 15px;
@@ -268,7 +293,37 @@
                 position: relative;
                 z-index: 5;    
             }
+            .add-comment {
+                margin-top: 20px;
+                margin-bottom: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                position: relative;
+                z-index: 5;    
 
+                textarea {
+                    padding: 10px;
+                    font-size: 14px;
+                    resize: vertical;
+                    border-radius: 8px;
+                    border: 1px solid #ccc;
+                }
+
+                button {
+                    align-self: flex-start;
+                    padding: 6px 18px;
+                    border: none;
+                    background-color: #ffd700;
+                    border-radius: 6px;
+                    font-weight: bold;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #f1c40f;
+                    }
+                }
+            }
             .comment {
                 margin-bottom: 20px;
                 background: rgba(255, 255, 255, 0.3);
@@ -288,5 +343,77 @@
                 }
             }
         }
+        .similar-places-section {
+            margin: 40px 120px;
+            .section-title {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 20px;
+                z-index: 3;
+                position: relative;
+            }
+
+            .carousel {
+                display: flex;
+                gap: 20px;
+                overflow-x: auto;
+                padding-bottom: 10px;
+                // // приховати стандартні scroll bar (опціонально)
+                // scrollbar-width: none;
+                // &::-webkit-scrollbar {
+                // display: none;
+                // }
+            }
+
+            .similar-card {
+                flex: 0 0 420px;
+                display: flex;
+                flex-direction: row;
+                background: rgba(225, 255, 0, 0.9);
+                border: 1px solid rgba(225, 255, 0, 0.9);
+                border-radius: 15px;
+                text-decoration: none;
+                color: black;
+                transition: transform 0.2s ease, box-shadow 0.3s ease;
+
+                &:hover {
+                    transform: scale(1.02);
+                    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+                    position: relative;
+                    z-index: 5;   
+                }
+
+                .image {
+                    width: 40%;
+                    position: relative;
+                    z-index: 5;   
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        border-top-left-radius: 15px;
+                        border-bottom-left-radius: 15px;
+                    }
+                }
+
+                .content {
+                    width: 60%;
+                    padding: 16px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+
+                    h3 {
+                        margin-bottom: 8px;
+                        font-size: 18px;
+                    }
+
+                    p {
+                        font-size: 15px;
+                    }
+                }
+            }
+        }
+
     }
 }

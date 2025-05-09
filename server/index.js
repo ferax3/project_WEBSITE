@@ -622,3 +622,139 @@ app.get('/feedbacks/comments/:placeID', (req, res) => {
         res.json(results);
     });
 });
+app.get('/similar-places/:placeID', (req, res) => {
+    const placeID = parseInt(req.params.placeID);
+
+    // 1. Отримати місто та теги поточного місця
+    const queryCityAndTags = `
+        SELECT p.cityID, pt.tagID
+        FROM places p
+        JOIN placetag pt ON p.placeID = pt.placeID
+        WHERE p.placeID = ?
+    `;
+
+    db.query(queryCityAndTags, [placeID], (err, results) => {
+        if (err) return res.status(500).send('Database error');
+
+        if (results.length === 0) return res.json([]);
+
+        const cityID = results[0].cityID;
+        const tagIDs = results.map(r => r.tagID);
+
+        // 2. Знайти місця з того ж міста та тегами, крім самого місця
+        const querySimilarPlaces = `
+            SELECT DISTINCT p.placeID, p.name, p.description, p.imagePath
+            FROM places p
+            JOIN placetag pt ON p.placeID = pt.placeID
+            WHERE p.cityID = ? AND pt.tagID IN (?) AND p.placeID != ?
+            LIMIT 10
+        `;
+
+        db.query(querySimilarPlaces, [cityID, tagIDs, placeID], (err2, similarResults) => {
+            if (err2) return res.status(500).send('Database error');
+            res.json(similarResults);
+        });
+    });
+});
+// POST - додати до вподобань
+app.post('/favourites', (req, res) => {
+    const { userID, placeID } = req.body;
+    const sql = `INSERT INTO favourites (userID, placeID, datetime) VALUES (?, ?, NOW())`;
+    db.query(sql, [userID, placeID], (err) => {
+        if (err) return res.status(500).send('Error adding to favourites');
+        res.send({ message: 'Added to favourites' });
+    });
+});
+
+// DELETE - видалити з вподобань
+app.delete('/favourites/:userID/:placeID', (req, res) => {
+    const { userID, placeID } = req.params;
+    const sql = `DELETE FROM favourites WHERE userID = ? AND placeID = ?`;
+    db.query(sql, [userID, placeID], (err) => {
+        if (err) return res.status(500).send('Error removing from favourites');
+        res.send({ message: 'Removed from favourites' });
+    });
+});
+app.post('/rate', (req, res) => {
+    const { userID, placeID, rating } = req.body;
+
+    if (!userID || !placeID || !rating) {
+        return res.status(400).send('Missing parameters');
+    }
+
+    // Перевіряємо, чи вже існує оцінка
+    const checkQuery = 'SELECT * FROM feedbacks WHERE userID = ? AND placeID = ?';
+    db.query(checkQuery, [userID, placeID], (err, results) => {
+        if (err) return res.status(500).send('Database error');
+
+        if (results.length > 0) {
+            // Оновлюємо оцінку
+            const updateQuery = 'UPDATE feedbacks SET rating = ? WHERE userID = ? AND placeID = ?';
+            db.query(updateQuery, [rating, userID, placeID], (err2) => {
+                if (err2) return res.status(500).send('Database error');
+                res.send({ message: 'Rating updated' });
+            });
+        } else {
+            // Додаємо нову оцінку
+            const insertQuery = 'INSERT INTO feedbacks (userID, placeID, rating, reviewDate) VALUES (?, ?, ?, NOW())';
+            db.query(insertQuery, [userID, placeID, rating], (err3) => {
+                if (err3) return res.status(500).send('Database error');
+                res.send({ message: 'Rating added' });
+            });
+        }
+    });
+});
+app.get('/rating', (req, res) => {
+    const { userID, placeID } = req.query;
+
+    const sql = 'SELECT rating FROM feedbacks WHERE userID = ? AND placeID = ? LIMIT 1';
+    db.query(sql, [userID, placeID], (err, results) => {
+        if (err) return res.status(500).send('Database error');
+        if (results.length > 0) {
+            res.json({ rating: results[0].rating });
+        } else {
+            res.json({ rating: 0 }); // якщо ще не оцінював
+        }
+    });
+});
+app.post('/comment', (req, res) => {
+    const { userID, placeID, comment } = req.body;
+    const reviewDate = new Date().toISOString().split('T')[0]; // тільки дата
+
+    const checkSql = 'SELECT * FROM feedbacks WHERE userID = ? AND placeID = ?';
+    db.query(checkSql, [userID, placeID], (err, results) => {
+        if (err) return res.status(500).send('Database error');
+
+        if (results.length > 0) {
+            // оновити існуючий коментар
+            const updateSql = 'UPDATE feedbacks SET comment = ?, reviewDate = ? WHERE userID = ? AND placeID = ?';
+            db.query(updateSql, [comment, reviewDate, userID, placeID], (err2) => {
+                if (err2) return res.status(500).send('Database error');
+                res.send({ message: 'Коментар оновлено' });
+            });
+        } else {
+            // вставити новий запис
+            const insertSql = 'INSERT INTO feedbacks (userID, placeID, rating, comment, reviewDate) VALUES (?, ?, 0, ?, ?)';
+            db.query(insertSql, [userID, placeID, comment, reviewDate], (err3) => {
+                if (err3) return res.status(500).send('Database error');
+                res.send({ message: 'Коментар додано' });
+            });
+        }
+    });
+});
+app.get('/comments/:placeID', (req, res) => {
+    const { placeID } = req.params;
+
+    const sql = `
+        SELECT f.comment, f.reviewDate, u.name AS userName
+        FROM feedbacks f
+        JOIN users u ON f.userID = u.userID
+        WHERE f.placeID = ? AND f.comment IS NOT NULL
+        ORDER BY f.reviewDate DESC
+    `;
+
+    db.query(sql, [placeID], (err, results) => {
+        if (err) return res.status(500).send('Database error');
+        res.json(results);
+    });
+});
