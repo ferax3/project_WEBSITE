@@ -33,17 +33,104 @@
             }
         }
     }
-    
+    .item {     
+        border: 2px solid white;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;  /* по горизонталі */
+        align-items: center;      /* по вертикалі */
+        text-align: center;
+        background: rgba(225, 255, 0, 0.9); //rgba(225, 255, 0, 0.9)
+        border: 1px solid rgba(225, 255, 0, 0.9);
+        flex-direction: row;
+        
+
+        h2{
+            padding-bottom: 10px;
+        }
+        .z-index-2{
+            z-index: 2;
+        }
+    }
+    .div3 { 
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+
+            width: 93px;         
+            height: 347px;
+
+            padding: 15px 0;    
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+            border-top-right-radius: 150px;
+            border-bottom-right-radius: 150px;
+            .circle-button {
+                width: 50px;
+                height: 50px;
+                background-color: rgba(98, 179, 0, 0.9);
+                backdrop-filter: blur(10px);
+                border: 2px solid rgba(255, 255, 255, 0.6); 
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                transition: transform 0.2s ease, background-color 0.3s ease;
+                color: black;
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+              
+            .circle-button:hover {
+                transform: scale(1.1);
+                background-color: rgba(255, 255, 255, 0.5);
+            }
+            .red{
+                background-color: rgb(241, 52, 52);
+            }
+            .red:hover {
+                transform: scale(1.1);
+                background-color: rgb(250, 10, 10);
+            }
+        }
     .top-part{
         display: flex;
         flex-direction: row;
         min-height: 500px;
         margin-right: 20px;
+
+        justify-content: space-between;     // центрування по горизонталі
+        align-items: center;         // центрування по вертикалі
+        height: 100vh;               // займає весь екран
+        padding-left: 120px;         // відступ зліва під меню
+        gap: 40px;                   // відстань між картинкою і контентом
+        box-sizing: border-box;
         .image{
-            width: 40%;
-            height: 730px; // фіксована висота
-            object-fit: cover;
-            display: block;
+            // background: rgba(225, 255, 0, 0.9);
+            // border-radius: 15px;
+            // border: 1px solid rgba(225, 255, 0, 0.9);
+            // margin: 40px 100px;
+            
+            // width: 40%;
+            // margin: 40px 100px;
+
+            height: 500px; // або будь-яка висота, яку хочеш
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(225, 255, 0, 0.9);
+            border: 1px solid rgba(225, 255, 0, 0.9);
+            flex: 0 0 40%;
+            // height: 730px; // фіксована висота
+            // object-fit: cover;
+            // display: block;
             z-index: 10;
             overflow: hidden;
             position: relative;
@@ -51,15 +138,13 @@
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                object-position: center;
                 display: block;
-    
-                // плавний перехід (затухання внизу)
-                -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-                mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+                border-radius: 15px;
             }
         }
         .info{
-            margin-top: 40px;
+            flex: 0 0 50%;
             display: flex;
             flex-direction: column;
             row-gap: 5px;
@@ -70,7 +155,7 @@
                 border: 1px solid rgba(225, 255, 0, 0.9);
                 align-self: flex-end;
                 padding: 16px 18px;
-                margin-right: 20px;
+                margin-right: 30px;
                 .city{
                     position: relative;
                     z-index: 5;          
@@ -85,19 +170,21 @@
                 }
             }
             .card-info{
-                margin: 120px 70px;
+                margin: 40px 30px;
                 background: rgba(225, 255, 0, 0.9);
                 border-radius: 15px;
                 border: 1px solid rgba(225, 255, 0, 0.9);
                 min-height: 300px;
                 display: flex;
-                align-items: center;
+                justify-content: center;
                 flex-direction: column;
+                padding: 30px 50px;
                 h1{
                     text-align: center;
-                    padding-top: 20px;
                     position: relative;
                     z-index: 4;
+                    align-items: center;
+                    padding-bottom: 5px;
                 }
                 .tags-mark{
                     display: flex;
@@ -106,6 +193,7 @@
                     margin: 20px 0;
                     width: 100%;
                     .tags{
+                        width: 50%;
                         margin-top: 10px;
                         margin-left: 20px;
                         display: flex;
@@ -122,6 +210,10 @@
                             font-weight: 500;
                             color: #333;
                             border: 1px solid #06D001; //#b5ec9c;
+                            span{
+                                position: relative;
+                                z-index: 7;    
+                            }
                           
                         }
                     }
@@ -137,9 +229,64 @@
                 .short{
                     position: relative;
                     z-index: 5;    
+                    text-align: center;
+                }
+            }
+
+        }
+    }
+    .deep-info{
+        margin-right: 50px;
+        margin-left: 120px;
+        padding: 30px 50px;
+        background: rgba(225, 255, 0, 0.9);
+        border-radius: 15px;
+        border: 1px solid rgba(225, 255, 0, 0.9);
+        display: flex;
+        flex-direction: column;
+        h3{
+            position: relative;
+            z-index: 5;    
+            text-align: center;
+            font-size: 22px;
+        }
+        p{
+            position: relative;
+            z-index: 5;    
+            padding-top: 15px;
+            text-align: center;
+        }
+        .comments-section {
+            // background-color: rgba(255, 255, 255, 0.6);
+            padding: 20px 30px;
+            border-radius: 12px;
+            // margin: 40px 100px;
+
+            h3 {
+                font-size: 22px;
+                margin-bottom: 20px;
+                position: relative;
+                z-index: 5;    
+            }
+
+            .comment {
+                margin-bottom: 20px;
+                background: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                padding: 12px;
+                border-radius: 8px;
+                p {
+                    margin: 0;
+                    position: relative;
+                    z-index: 5;   
+                    text-align: left;
+                }
+
+                strong {
+                    position: relative;
+                    z-index: 5;   
                 }
             }
         }
     }
-
 }

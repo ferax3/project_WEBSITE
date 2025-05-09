@@ -603,3 +603,22 @@ app.get('/place/:placeID', (req, res) => {
       res.json(results[0]);
     });
 });
+app.get('/feedbacks/comments/:placeID', (req, res) => {
+    const placeID = req.params.placeID;
+
+    const sql = `
+        SELECT f.comment, f.reviewDate, u.name AS userName
+        FROM feedbacks f
+        JOIN users u ON f.userID = u.userID
+        WHERE f.placeID = ? AND f.comment IS NOT NULL AND f.comment != ''
+        ORDER BY f.reviewDate DESC
+    `;
+
+    db.query(sql, [placeID], (err, results) => {
+        if (err) {
+            console.error('Error fetching comments:', err);
+            return res.status(500).send('Database error');
+        }
+        res.json(results);
+    });
+});

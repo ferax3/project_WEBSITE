@@ -148,7 +148,10 @@ const Catalog = () => {
                             <img src={`http://localhost:3002${place.imagePath}`} alt={place.name} className="place-image" />
                             <div className="z-index-2">
                                 <h3>{place.name}</h3>
-                                <p>{place.description || 'Опис відсутній'}</p>
+                                {place.description && (
+                                    <p>{place.description.split('-----')[0].trim()}</p>
+                                )}
+
                                 {place.tags && place.tags.length > 0 && (
                                     <div className="tags">
                                         {place.tags.map((tag, index) => (
