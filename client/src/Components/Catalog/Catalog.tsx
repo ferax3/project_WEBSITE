@@ -5,18 +5,19 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Axios from 'axios';
 import './Catalog.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const Catalog = () => {
-  const { userID } = useParams();
-  const [places, setPlaces] = useState([]);
-  const [cityID, setCityID] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [cities, setCities] = useState([]);
-  const [selectedTag, setSelectedTag] = useState('');
-  const [tags, setTags] = useState([]);
+    const { userID } = useParams();
+    const navigate = useNavigate();
+    const [places, setPlaces] = useState([]);
+    const [cityID, setCityID] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [cities, setCities] = useState([]);
+    const [selectedTag, setSelectedTag] = useState('');
+    const [tags, setTags] = useState([]);
 
-  useEffect(() => {
+    useEffect(() => {
     Axios.get(`http://localhost:3002/user/${userID}`).then((res) => {
         const cityID = res.data.cityID;
         setCityID(cityID);
@@ -136,7 +137,22 @@ const Catalog = () => {
                         <Link to={`/favourites/${userID}`}>
                             <div className="circle-button"><FaHeart /></div>
                         </Link>
-                        <div className="circle-button"><FaDiceFive /></div>
+                        <div
+                            className="circle-button"
+                            onClick={() => {
+                                Axios.get(`http://localhost:3002/random-place/${userID}`)
+                                .then((res) => {
+                                    const placeID = res.data.placeID;
+                                    navigate(`/place/${userID}/${placeID}`);
+                                })
+                                .catch((err) => {
+                                    console.error('Не вдалося отримати випадкове місце', err);
+                                    alert('У цьому місті поки що немає місць.');
+                                });
+                            }}
+                            >
+                            <FaDiceFive />
+                        </div>
                         <Link to="/">
                             <div className="circle-button red"><FaSignOutAlt /></div>
                         </Link>  

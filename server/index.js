@@ -803,3 +803,37 @@ app.get('/all-favourites/:userID', (req, res) => {
     });
   });
 });
+//Для рандому
+app.get('/random-place/:userID', (req, res) => {
+  const userID = req.params.userID;
+
+  // 1. Дізнаємось місто користувача
+  const citySql = 'SELECT cityID FROM users WHERE userID = ?';
+
+  db.query(citySql, [userID], (err, cityResult) => {
+    if (err || cityResult.length === 0) {
+      console.error('Error fetching cityID:', err);
+      return res.status(500).send('User or city not found');
+    }
+
+    const cityID = cityResult[0].cityID;
+
+    // 2. Випадкове місце з цього міста
+    const randomPlaceSql = `
+      SELECT placeID, name, description
+      FROM places
+      WHERE cityID = ?
+      ORDER BY RAND()
+      LIMIT 1
+    `;
+
+    db.query(randomPlaceSql, [cityID], (err2, placeResult) => {
+      if (err2 || placeResult.length === 0) {
+        console.error('Error fetching random place:', err2);
+        return res.status(500).send('No place found in city');
+      }
+
+      res.json(placeResult[0]); // повертаємо placeID і т.д.
+    });
+  });
+});

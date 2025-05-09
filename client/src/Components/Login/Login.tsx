@@ -25,7 +25,7 @@ const Login = () => {
       LoginPassword: loginPassword
     }). then((response)=>{
       if (response.data.message === 'Login successful') {
-        navigateTo(`/dashboard/${response.data.userID}`, { state: { name: response.data.user } });
+        navigateTo(`/home/${response.data.userID}`, { state: { name: response.data.user } });
       } else {
         setLoginStatus(`Credentials Don't Exist!`);
         navigateTo('/');

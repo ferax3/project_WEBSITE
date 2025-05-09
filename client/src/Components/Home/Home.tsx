@@ -3,12 +3,13 @@ import { FaUser, FaSignOutAlt } from 'react-icons/fa';
 import { FaGrip, FaHeart, FaDiceFive} from "react-icons/fa6";
 
 import { Link } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Axios from 'axios';
 
 const Home = () => {
     const { userID } = useParams();
+    const navigate = useNavigate();
     const [userName, setUserName] = useState('');
     const [cityID, setCityID] = useState(null);
     const [cities, setCities] = useState([]);
@@ -179,7 +180,22 @@ const Home = () => {
                         <Link to={`/favourites/${userID}`}>
                             <div className="circle-button"><FaHeart /></div>
                         </Link>
-                        <div className="circle-button"><FaDiceFive /></div>
+                        <div
+                            className="circle-button"
+                            onClick={() => {
+                                Axios.get(`http://localhost:3002/random-place/${userID}`)
+                                .then((res) => {
+                                    const placeID = res.data.placeID;
+                                    navigate(`/place/${userID}/${placeID}`);
+                                })
+                                .catch((err) => {
+                                    console.error('Не вдалося отримати випадкове місце', err);
+                                    alert('У цьому місті поки що немає місць.');
+                                });
+                            }}
+                            >
+                            <FaDiceFive />
+                        </div>
                         <Link to="/">
                             <div className="circle-button red"><FaSignOutAlt /></div>
                         </Link>  
