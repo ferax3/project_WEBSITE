@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 
 import { useEffect, useState } from 'react';
 import Axios from 'axios';
-import './Catalog.css';
+import './Favourites.css';
 import { useParams } from 'react-router-dom';
 
-const Catalog = () => {
+const Favourites = () => {
   const { userID } = useParams();
   const [places, setPlaces] = useState([]);
   const [cityID, setCityID] = useState(null);
@@ -20,62 +20,51 @@ const Catalog = () => {
     Axios.get(`http://localhost:3002/user/${userID}`).then((res) => {
         const cityID = res.data.cityID;
         setCityID(cityID);
-        fetchPlacesByCity(cityID);
-
-        Axios.get(`http://localhost:3002/places/by-city/${cityID}`)
-        .then((res) => {
-            setPlaces(res.data);
-            // зібрати всі унікальні теги
-            const allTags = new Set();
-            res.data.forEach(p => {
-                (p.tags || []).forEach(tag => allTags.add(tag));
-            });
-            setTags([...allTags]);
-        });
+        fetchFavourites(userID, cityID);
     });
     Axios.get('http://localhost:3002/cities')
-    .then((res) => {
-    setCities(res.data);
+        .then((res) => {
+            setCities(res.data);
     });
     }, [userID]);
     const handleCityChange = (e) => {
         const newCityID = parseInt(e.target.value);
         setCityID(newCityID);
     
-        Axios.put(`http://localhost:3002/user/${userID}/city`, {
-        cityID: newCityID
-        })
-        .then((res) => {
+        Axios.put(`http://localhost:3002/user/${userID}/city`, { cityID: newCityID })
+            .then(() => {
             console.log('Місто оновлено');
-            fetchPlacesByCity(newCityID);
-
-        })
-        .catch((err) => {
+            fetchFavourites(userID, newCityID);
+            })
+            .catch((err) => {
             console.error('Помилка при оновленні міста', err);
-        });
+            });
     };
 
-    // const filteredPlaces = places.filter(place =>
-    //     place.name.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
     const filteredPlaces = places.filter(place => {
         const matchesSearch = place.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesTag = selectedTag === '' || (place.tags || []).includes(selectedTag);
         return matchesSearch && matchesTag;
     });
-      
-    const fetchPlacesByCity = (cityID) => {
-        Axios.get(`http://localhost:3002/places/by-city/${cityID}`)
-        .then((res) => {
-            setPlaces(res.data);
-        })
-        .catch((err) => {
-            console.error('Error fetching places:', err);
-        });
-    };
+    
+const fetchFavourites = (userID: string, cityID: number) => {
+  Axios.get(`http://localhost:3002/all-favourites/${userID}?cityID=${cityID}`)
+    .then((res) => {
+      setPlaces(res.data);
+      const allTags = new Set();
+      res.data.forEach(p => {
+        (p.tags || []).forEach(tag => allTags.add(tag));
+      });
+      setTags([...allTags]);
+    })
+    .catch((err) => {
+      console.error('Error fetching favourites:', err);
+    });
+};
+
 
     return (
-        <div className="catalog-page">
+        <div className="favourites-page">
             <div className="blob-outer-container">
                 <div className="blob-inner-container">
                     <div className="blob"></div>
@@ -143,7 +132,13 @@ const Catalog = () => {
                     </div>
                 </div>
 
+                {filteredPlaces.length === 0 && (
+                    <h1 className="no-favourites-message">
+                        У вас немає вподобаних місць у цьому місті
+                    </h1>
+                )}
                 <div className="places-grid">
+
                 {filteredPlaces.map((place) => (
                     <Link to={`/place/${userID}/${place.placeID}`} className="place-link">
                         <div className="item places-card" key={place.placeID}>
@@ -171,4 +166,4 @@ const Catalog = () => {
     );
 };
 
-export default Catalog;
+export default Favourites;

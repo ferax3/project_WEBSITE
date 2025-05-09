@@ -137,7 +137,9 @@ const PlaceDetails = () => {
                         <Link to={`/catalog/${userID}`}>
                             <div className="circle-button"><FaGrip /></div>
                         </Link>
-                        <div className="circle-button"><FaHeart /></div>
+                        <Link to={`/favourites/${userID}`}>
+                            <div className="circle-button"><FaHeart /></div>
+                        </Link>
                         <div className="circle-button"><FaDiceFive /></div>
                         <Link to="/">
                             <div className="circle-button red"><FaSignOutAlt /></div>

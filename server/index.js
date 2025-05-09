@@ -758,3 +758,48 @@ app.get('/comments/:placeID', (req, res) => {
         res.json(results);
     });
 });
+// Favourites.tsx
+app.get('/all-favourites/:userID', (req, res) => {
+  const userID = req.params.userID;
+  const cityID = req.query.cityID;
+
+  const sql = `
+    SELECT p.placeID, p.name, p.description, p.imagePath
+    FROM favourites f
+    JOIN places p ON f.placeID = p.placeID
+    WHERE f.userID = ? ${cityID ? 'AND p.cityID = ?' : ''}
+    ORDER BY f.datetime DESC
+  `;
+  const params = cityID ? [userID, cityID] : [userID];
+
+  db.query(sql, params, (err, places) => {
+    if (err) return res.status(500).send('Database error');
+
+    const placeIDs = places.map(p => p.placeID);
+    if (placeIDs.length === 0) return res.json([]);
+
+    const tagSql = `
+      SELECT pt.placeID, t.name AS tag
+      FROM placetag pt
+      JOIN tags t ON pt.tagID = t.tagID
+      WHERE pt.placeID IN (?)
+    `;
+
+    db.query(tagSql, [placeIDs], (err2, tagResults) => {
+      if (err2) return res.status(500).send('Database error');
+
+      const tagMap = {};
+      tagResults.forEach(({ placeID, tag }) => {
+        if (!tagMap[placeID]) tagMap[placeID] = [];
+        tagMap[placeID].push(tag);
+      });
+
+      const enrichedPlaces = places.map(place => ({
+        ...place,
+        tags: tagMap[place.placeID] || []
+      }));
+
+      res.json(enrichedPlaces);
+    });
+  });
+});
