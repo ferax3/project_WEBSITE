@@ -11,7 +11,7 @@ html {
 }
 
 :root {
-  --primaryColor: hsl(94, 55%, 56%);
+  --primaryColor: hsl(94, 89%, 32%);
   --hoverColor: hsl(93, 75%, 76%);
   --paleGreen: hsl(96, 75%, 89%);
   --whiteColor: hsl(0, 0%, 100%);
@@ -157,7 +157,7 @@ img, video {
   margin: auto;
   justify-content: space-between;
   border-radius: 10px;
-  background: hsl(0, 0%, 91%);
+  background: rgba(225, 255, 0, 0.9);
 }
 .loginPage .container .videoDiv, .registerPage .container .videoDiv {
   position: relative;

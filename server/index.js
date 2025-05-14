@@ -11,10 +11,9 @@ const db = mysql.createConnection({
     host: 'localhost',
     password: '',
     database: 'advicedb',
-
 })
 
-function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.01) {
+function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.01) { //! steps = 30000
     const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
     const transpose = (matrix) => matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
 
@@ -22,6 +21,17 @@ function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.
     let e = 0;
     // !ДЛЯ ТЕСТУВАННЯ
     const errorsPerEpoch = []; 
+
+    const { performance } = require('perf_hooks');
+    const formatTime = (milliseconds) => {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const ms = String(Math.floor(milliseconds % 1000)).padStart(3, '0'); // додаємо мілісекунди
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}.${ms}`; 
+    };
+    let start = performance.now();
 
     for (let step = 0; step < steps; step++) {
         for (let i = 0; i < R.length; i++) {
@@ -51,15 +61,18 @@ function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.
         }
 
         if (step % 100 === 0) {
-            errorsPerEpoch.push({ epoch: step, error: e });
+            const currentTime = formatTime(performance.now() - start);
+            // errorsPerEpoch.push({ epoch: step, error: e });
+            errorsPerEpoch.push({ epoch: step, error: e, timeFormatted: currentTime });
         }
 
         if (e < 0.001) {
             break;
         }
     }
-    errorsPerEpoch.push({ epoch: steps, error: e });
-
+    const totalTime = formatTime(performance.now() - start);
+    errorsPerEpoch.push({ epoch: steps, error: e, timeFormatted: totalTime });
+    // errorsPerEpoch.push({ epoch: steps, error: e });
 
     // return { P, Q: transpose(Q) };
     // return { P, Q: transpose(Q), e };
@@ -207,10 +220,24 @@ app.get('/recommendations/:userID', (req, res) => {
 
             const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
             const K = 10;
-
             //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
-            console.log('Original Rating Matrix:');
-            console.table(R);
+            const fs = require('fs');
+            const path = require('path');
+
+            const filesDir = path.join(__dirname, 'files');
+            if (!fs.existsSync(filesDir)) {
+                fs.mkdirSync(filesDir);
+            }
+
+            const saveMatrixToCSV = (matrix, filename) => {
+                const csv = matrix.map(row => row.join(',')).join('\n');
+                fs.writeFileSync(path.join(filesDir, filename), csv);
+            };
+            saveMatrixToCSV(R, 'original_matrix.csv');
+
+
+            // console.log('Original Rating Matrix:');
+            // console.table(R);
 
             const randomMatrix = (rows, cols) =>
                 Array.from({ length: rows }, () =>
@@ -225,11 +252,11 @@ app.get('/recommendations/:userID', (req, res) => {
             // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
 
             //! Зберігання в errors.csv
-            const fs = require('fs');
-            const csvData = errorsPerEpoch.map(({ epoch, error }) => `${epoch},${error}`).join('\n');
-            fs.writeFileSync('errors.csv', `Epoch,Error\n${csvData}`);
+            const errorCSV = errorsPerEpoch.map(({ epoch, error, timeFormatted }) =>
+                `${epoch},${error},${timeFormatted}`).join('\n');
+            fs.writeFileSync(path.join(filesDir, 'errors.csv'), `Epoch,Error,Time\n${errorCSV}`);
 
-            console.log('Error data saved to errors.csv');
+            // console.log('Error data saved to errors.csv');
             const userIndex = userID - 1;
             const userVector = finalP[userIndex];
 
@@ -252,10 +279,12 @@ app.get('/recommendations/:userID', (req, res) => {
             const roundedMatrix = resultMatrix.map(row =>
                 row.map(value => Number(value.toFixed(2)))
             ); 
-                // !Виведення матриці
-            console.log('Predicted rating matrix:');
 
-            console.table(roundedMatrix);
+            // !Виведення матриці
+            saveMatrixToCSV(roundedMatrix, 'predicted_matrix.csv');
+            // console.log('Predicted rating matrix:');
+            // console.table(roundedMatrix);
+            
             // console.table(resultMatrix);
             //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
             // console.log('Factorized Matrices:');
