@@ -12,7 +12,14 @@ const db = mysql.createConnection({
     password: '',
     database: 'advicedb',
 })
-
+const getQuery = (sql, params = []) => {
+    return new Promise((resolve, reject) => {
+        db.query(sql, params, (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+};
 function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.01) { //! steps = 30000
     const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
     const transpose = (matrix) => matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
@@ -25,7 +32,7 @@ function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.
     const { performance } = require('perf_hooks');
     const formatTime = (milliseconds) => {
         const totalSeconds = Math.floor(milliseconds / 1000);
-        const ms = String(Math.floor(milliseconds % 1000)).padStart(3, '0'); // додаємо мілісекунди
+        const ms = String(Math.floor(milliseconds % 1000)).padStart(3, '0');
         const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
         const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
         const seconds = String(totalSeconds % 60).padStart(2, '0');
@@ -89,67 +96,8 @@ function createRatingMatrix(feedbacks, userCount, placeCount) {
     return R;
 }
 
-//! ПЕРШЕ ТЕСТУВАННЯ-ПЕРЕВІРКА НА СУМІСНІСТЬ
-// function runMatrixFactorization() {
-//     db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
-//         if (err) {
-//             console.error('Error fetching feedbacks:', err);
-//             return;
-//         }
-//         const userIDs = [...new Set(results.map(item => item.userID))];
-//         const placeIDs = [...new Set(results.map(item => item.placeID))];
-//         const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
-//         const K = 10; 
-//         // // Ініціалізація P та Q
-//         // const P = Array.from({ length: R.length }, () => 
-//         //     Array.from({ length: K }, () => Math.random() * 0.1)
-//         // );
-//         // const Q = Array.from({ length: R[0].length }, () => 
-//         //     Array.from({ length: K }, () => Math.random() * 0.1)
-//         // );
-
-//         const randomMatrix = (rows, cols) => 
-//             Array.from({ length: rows }, () => 
-//                 Array.from({ length: cols }, () => Math.random())
-//             );
-
-//         const P = randomMatrix(R.length, K);
-//         const Q = randomMatrix(R[0].length, K);
-
-//         // console.log('Initial P:', P);
-//         // console.log('Initial Q:', Q);
-
-//         // const P = Array.from({ length: R.length }, () => Array(K).fill(Math.random()));
-//         // const Q = Array.from({ length: R[0].length }, () => Array(K).fill(Math.random()));
-
-//         // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
-//         const { P: finalP, Q: finalQ, e: finalE  } = matrixFactorization(R, P, Q, K);
-
-//         console.log('Original Rating Matrix:');
-//         console.table(R);
-
-//         const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
-
-//         const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
-//         );
-
-//         const roundedMatrix = resultMatrix.map(row =>
-//             row.map(value => Number(value.toFixed(2)))
-//         );
-
-//         console.log('Predicted rating matrix:');
-//         console.table(roundedMatrix);
-//         // console.table(resultMatrix);
-//         // console.log('Factorized Matrices:');
-//         // console.log('P:', finalP);
-//         // console.log('Q:', finalQ);
-//         console.log("Error", finalE);
-//     });
-// }
-
 app.listen(3002, ()=>{
     console.log("Server is running on port 3002");
-    // runMatrixFactorization();
 })
 
 app.post('/register', (req, res)=>{
@@ -197,130 +145,421 @@ app.post('/login', (req, res)=>{
         }
     })
 })
+async function trainFully(K) {
+    const fs = require('fs');
+    const path = require('path');
 
-app.get('/recommendations/:userID', (req, res) => {
-    const userID = parseInt(req.params.userID);
-    // 1. Спочатку дізнаємось місто користувача
-    db.query('SELECT cityID FROM users WHERE userID = ?', [userID], (err, cityResult) => {
-        if (err || cityResult.length === 0) {
-          console.error('Error fetching cityID:', err);
-          return res.status(500).send('User or city not found');
+    const filesDir = path.join(__dirname, 'files');
+    if (!fs.existsSync(filesDir)) {
+        fs.mkdirSync(filesDir);
+    }
+
+    const saveMatrixToCSV = (matrix, filename) => {
+        const csv = matrix.map(row => row.join(',')).join('\n');
+        fs.writeFileSync(path.join(filesDir, filename), csv);
+    };
+    // Отримуємо користувачів з ≥5 оцінками
+    const activeUsers = await getQuery(`
+        SELECT userID FROM feedbacks GROUP BY userID HAVING COUNT(*) >= 5
+    `);
+    const userIDIndex = new Map();
+    activeUsers.forEach((u, i) => userIDIndex.set(u.userID, i));
+
+    // Отримуємо місця з ≥5 оцінками
+    const activePlaces = await getQuery(`
+        SELECT placeID FROM feedbacks GROUP BY placeID HAVING COUNT(*) >= 5
+    `);
+    const placeIDIndex = new Map();
+    activePlaces.forEach((p, i) => placeIDIndex.set(p.placeID, i));
+
+    // Завантажуємо всі відгуки
+    const feedbacks = await getQuery(`SELECT userID, placeID, rating FROM feedbacks`);
+
+    // Створюємо рейтинг-матрицю R (тільки для активних)
+    const R = Array.from({ length: activeUsers.length }, () =>
+        Array(activePlaces.length).fill(0)
+    );
+
+    feedbacks.forEach(({ userID, placeID, rating }) => {
+        const i = userIDIndex.get(userID);
+        const j = placeIDIndex.get(placeID);
+        if (i !== undefined && j !== undefined) {
+            R[i][j] = rating;
         }
-    
-        const cityID = cityResult[0].cityID;
-        // 2. Отримуємо всі відгуки
-        db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
-            if (err) {
-                console.error('Error fetching feedbacks:', err);
-                return res.status(500).send('Database error');
-            }
-
-            const userIDs = [...new Set(results.map(item => item.userID))];
-            const placeIDs = [...new Set(results.map(item => item.placeID))];
-
-            const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
-            const K = 10;
-            //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
-            const fs = require('fs');
-            const path = require('path');
-
-            const filesDir = path.join(__dirname, 'files');
-            if (!fs.existsSync(filesDir)) {
-                fs.mkdirSync(filesDir);
-            }
-
-            const saveMatrixToCSV = (matrix, filename) => {
-                const csv = matrix.map(row => row.join(',')).join('\n');
-                fs.writeFileSync(path.join(filesDir, filename), csv);
-            };
-            saveMatrixToCSV(R, 'original_matrix.csv');
-
-
-            // console.log('Original Rating Matrix:');
-            // console.table(R);
-
-            const randomMatrix = (rows, cols) =>
-                Array.from({ length: rows }, () =>
-                    Array.from({ length: cols }, () => Math.random())
-                );
-
-            const P = randomMatrix(R.length, K);
-            const Q = randomMatrix(R[0].length, K);
-
-            //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
-            const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K);
-            // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
-
-            //! Зберігання в errors.csv
-            const errorCSV = errorsPerEpoch.map(({ epoch, error, timeFormatted }) =>
-                `${epoch},${error},${timeFormatted}`).join('\n');
-            fs.writeFileSync(path.join(filesDir, 'errors.csv'), `Epoch,Error,Time\n${errorCSV}`);
-
-            // console.log('Error data saved to errors.csv');
-            const userIndex = userID - 1;
-            const userVector = finalP[userIndex];
-
-            const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
-
-            const predictedRatings = finalQ
-            .map((placeVector, index) => ({
-                placeID: index + 1,
-                rating: dotProduct(userVector, placeVector),
-                visited: R[userIndex][index] > 0
-            }))
-            .filter(item => !item.visited)
-            .sort((a, b) => b.rating - a.rating);
-
-            const placeIDsToFetch = predictedRatings.map(item => item.placeID);
-
-            //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
-            const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
-            );
-            const roundedMatrix = resultMatrix.map(row =>
-                row.map(value => Number(value.toFixed(2)))
-            ); 
-
-            // !Виведення матриці
-            saveMatrixToCSV(roundedMatrix, 'predicted_matrix.csv');
-            // console.log('Predicted rating matrix:');
-            // console.table(roundedMatrix);
-            
-            // console.table(resultMatrix);
-            //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
-            // console.log('Factorized Matrices:');
-            // console.log('P:', finalP);
-            // console.log('Q:', finalQ);
-            console.log("Error", finalE);
-
-            db.query(
-                'SELECT placeID, name, description FROM places WHERE placeID IN (?) AND cityID = ?',
-                [placeIDsToFetch, cityID],
-                // 'SELECT placeID, name, description FROM places WHERE placeID IN (?)',
-                // [placeIDsToFetch],
-                (err, places) => {
-                    if (err) {
-                        console.error('Error fetching places:', err);
-                        return res.status(500).send('Database error');
-                    }
-
-                    const recommendations = predictedRatings
-                        .filter(item => places.some(p => p.placeID === item.placeID))
-                        .map(item => {
-                        const place = places.find(p => p.placeID === item.placeID);
-                        return {
-                            placeID: item.placeID,
-                            name: place ? place.name : 'Невідоме місце',
-                            description: place ? place.description : 'Опис недоступний',
-                            predictedRating: Number(item.rating.toFixed(2))
-                        };
-                    });
-
-                    res.json(recommendations);
-                }
-            );
-        });
     });
+
+    // ✅ Зберігаємо оригінальну матрицю R
+    saveMatrixToCSV(R, 'original_matrix.csv');
+
+    const randomMatrix = (rows, cols) => Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () => Math.random())
+    );
+    const P = randomMatrix(R.length, K);
+    const Q = randomMatrix(R[0].length, K);
+
+    // ✅ Виконуємо факторизацію з логом помилок
+    const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K, 5000);
+    // ✅ Зберігаємо помилки по епохах
+    const errorCSV = errorsPerEpoch.map(({ epoch, error, timeFormatted }) =>
+        `${epoch},${error},${timeFormatted}`).join('\n');
+    fs.writeFileSync(path.join(filesDir, 'errors.csv'), `Epoch,Error,Time\n${errorCSV}`);
+
+    // ✅ Генеруємо прогнозовану матрицю
+    const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
+    const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ)));
+    const roundedMatrix = resultMatrix.map(row =>
+        row.map(value => Number(value.toFixed(2)))
+    );
+    // ✅ Зберігаємо прогнозовану матрицю
+    saveMatrixToCSV(roundedMatrix, 'predicted_matrix.csv');
+
+    // Зберігаємо у users
+    for (let i = 0; i < activeUsers.length; i++) {
+        const jsonVec = JSON.stringify(finalP[i]);
+        await getQuery(`UPDATE users SET featureVector = ? WHERE userID = ?`, [
+            jsonVec,
+            activeUsers[i].userID,
+        ]);
+    }
+
+    // Зберігаємо у places
+    for (let j = 0; j < activePlaces.length; j++) {
+        const jsonVec = JSON.stringify(finalQ[j]);
+        await getQuery(`UPDATE places SET featureVector = ? WHERE placeID = ?`, [
+            jsonVec,
+            activePlaces[j].placeID,
+        ]);
+    }
+
+    console.log("✅ Повне навчання завершено.");
+}
+
+async function trainUser(userID, K) {
+    const countRows = await getQuery(`
+        SELECT COUNT(*) as cnt FROM feedbacks WHERE userID = ?
+    `, [userID]);
+    const countResult = countRows[0];
+
+    if (countResult.cnt < 5) return;
+
+    const places = await getQuery(`SELECT placeID, featureVector FROM places`);
+
+    const placeVectors = places.map(p => p.featureVector ? JSON.parse(p.featureVector) : null);
+    const validIndexes = places.map((p, idx) => p.featureVector ? idx : -1).filter(i => i !== -1);
+
+    const feedbacks = await getQuery(`
+        SELECT placeID, rating FROM feedbacks WHERE userID = ?
+    `, [userID]);
+
+    const placeIDIndex = new Map();
+    places.forEach((p, idx) => placeIDIndex.set(p.placeID, idx));
+
+    const R = [Array(places.length).fill(0)];
+    feedbacks.forEach(({ placeID, rating }) => {
+        const idx = placeIDIndex.get(placeID);
+        if (idx !== undefined) R[0][idx] = rating;
+    });
+
+    const P = [Array.from({ length: K }, () => Math.random())];
+    const Q = placeVectors.map(v => v || Array(K).fill(0)); // замінюємо null
+
+    const { P: finalP } = matrixFactorization(R, P, Q, K, 2000);
+    const jsonVec = JSON.stringify(finalP[0]);
+
+    await getQuery(`UPDATE users SET featureVector = ? WHERE userID = ?`, [jsonVec, userID]);
+}
+async function trainUserLocal(userID, K) {
+    const userRows = await getQuery(`
+        SELECT cityID, featureVector FROM users WHERE userID = ?
+    `, [userID]);
+    const user = userRows[0];
+
+    const places = await getQuery(`
+        SELECT placeID, featureVector FROM places WHERE cityID = ?
+    `, [user.cityID]);
+
+    const feedbacks = await getQuery(`
+        SELECT placeID, rating FROM feedbacks WHERE userID = ?
+    `, [userID]);
+
+    const placeIDIndex = new Map();
+    places.forEach((p, idx) => placeIDIndex.set(p.placeID, idx));
+
+    const R = [Array(places.length).fill(0)];
+    feedbacks.forEach(({ placeID, rating }) => {
+        const idx = placeIDIndex.get(placeID);
+        if (idx !== undefined) R[0][idx] = rating;
+    });
+
+    const Q = places.map(p => p.featureVector ? JSON.parse(p.featureVector) : Array(K).fill(0));
+    // 3. P — вектор користувача: або з БД, або випадковий
+    let P;
+    if (user.featureVector) {
+        P = [JSON.parse(user.featureVector)];
+    } else {
+        P = [Array.from({ length: K }, () => Math.random())];
+    }
+
+    const { P: finalP } = matrixFactorization(R, P, Q, K, 1000);
+    const jsonVec = JSON.stringify(finalP[0]);
+
+    await getQuery(`UPDATE users SET featureVector = ? WHERE userID = ?`, [jsonVec, userID]);
+}
+async function checkAndTrainPlacesWithEnoughRatings(K) {
+    const places = await getQuery(`
+        SELECT p.placeID FROM places p
+        LEFT JOIN feedbacks f ON p.placeID = f.placeID
+        WHERE p.featureVector IS NULL
+        GROUP BY p.placeID
+        HAVING COUNT(f.rating) >= 5
+    `);
+
+    for (const { placeID } of places) {
+        await trainPlace(placeID, K);
+    }
+}
+async function trainPlace(placeID, K) {
+    const users = await getQuery(`
+        SELECT u.userID, u.featureVector
+        FROM users u
+        JOIN (
+            SELECT userID FROM feedbacks GROUP BY userID HAVING COUNT(*) >= 5
+        ) qualified ON qualified.userID = u.userID
+    `);
+    const userVectors = users.map(u => u.featureVector ? JSON.parse(u.featureVector) : null);
+
+    const feedbacks = await getQuery(`
+        SELECT userID, rating FROM feedbacks WHERE placeID = ?
+    `, [placeID]);
+    
+    const userIDIndex = new Map();
+    users.forEach((u, idx) => userIDIndex.set(u.userID, idx));
+
+    const R = Array.from({ length: users.length }, () => [0]);
+    feedbacks.forEach(({ userID, rating }) => {
+        const idx = userIDIndex.get(userID);
+        if (idx !== undefined) R[idx][0] = rating;
+    });
+
+    const P = userVectors.map(v => v || Array(K).fill(0));
+    const Q = [Array.from({ length: K }, () => Math.random())];
+
+    const { Q: finalQ } = matrixFactorization(R, P, Q, K, 2000);
+    const jsonVec = JSON.stringify(finalQ[0]);
+
+    await getQuery(`UPDATE places SET featureVector = ? WHERE placeID = ?`, [jsonVec, placeID]);
+}
+
+app.get('/recommendations/:userID', async (req, res) => {
+    const userID = parseInt(req.params.userID);
+    const K = 15;
+
+    // 1. Перевіряємо чи потрібно повне навчання
+    const userStats = await getQuery(`
+        SELECT COUNT(*) as total, SUM(CASE WHEN featureVector IS NULL THEN 1 ELSE 0 END) as nullCount FROM users
+    `);
+    const { total: totalUsers, nullCount: nullUsers } = userStats[0];
+
+    const placeStats = await getQuery(`
+        SELECT COUNT(*) as total, SUM(CASE WHEN featureVector IS NULL THEN 1 ELSE 0 END) as nullCount FROM places
+    `);
+    const { total: totalPlaces, nullCount: nullPlaces } = placeStats[0];
+
+    const allUsersNull = totalUsers === nullUsers;
+    const allPlacesNull = totalPlaces === nullPlaces;
+
+    if (allUsersNull && allPlacesNull) {
+        await trainFully(K); // ❗ повне навчання 1 раз
+    }
+
+    // 2. Перевіряємо, чи user має featureVector
+    const userRows = await getQuery(
+        'SELECT featureVector, cityID FROM users WHERE userID = ?', [userID]
+    );
+
+    if (userRows.length === 0) return res.status(404).send('User not found');
+
+    const { featureVector, cityID } = userRows[0];
+
+    const countRows = await getQuery(
+        'SELECT COUNT(*) as cnt FROM feedbacks WHERE userID = ?', [userID]
+    );
+    const countRow = countRows[0];
+
+    if (featureVector === null) {
+        if (countRow.cnt < 5) {
+            return res.status(200).json({ message: "Потрібно поставити більше оцінок (мінімум 5), щоб отримати рекомендації" });
+        } else {
+            await trainUser(userID, K); // ❗ навчання одного користувача
+        }
+    }
+
+    await trainUserLocal(userID, K); // ❗ донавчання по місту користувача
+
+    // 3. Перевірити місця з NULL які вже мають ≥5 оцінок
+    await checkAndTrainPlacesWithEnoughRatings(K);
+
+    // 4. Побудова рекомендацій...
+    const fvRow = await getQuery(
+        'SELECT featureVector FROM users WHERE userID = ?', [userID]
+    );
+    const userVector = JSON.parse(fvRow[0].featureVector);
+
+    const places = await getQuery(`
+        SELECT placeID, name, description, featureVector
+        FROM places
+        WHERE cityID = ?
+    `, [cityID]);
+
+    const ratedPlaces = await getQuery(`
+        SELECT placeID FROM feedbacks WHERE userID = ?
+    `, [userID]);
+
+    const ratedSet = new Set(ratedPlaces.map(r => r.placeID));
+
+    const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
+
+    const predictedRatings = places
+        .filter(p => p.featureVector && !ratedSet.has(p.placeID))
+        .map(p => ({
+            placeID: p.placeID,
+            name: p.name,
+            description: p.description,
+            predictedRating: dotProduct(userVector, JSON.parse(p.featureVector))
+        }))
+        .sort((a, b) => b.predictedRating - a.predictedRating)
+        .map(p => ({
+            placeID: p.placeID,
+            name: p.name,
+            description: p.description,
+            predictedRating: Number(p.predictedRating.toFixed(2))
+        }));
+
+    res.json(predictedRatings);
 });
+
+
+
+// app.get('/recommendations/:userID', (req, res) => {
+//     const userID = parseInt(req.params.userID);
+//     // 1. Спочатку дізнаємось місто користувача
+//     db.query('SELECT cityID FROM users WHERE userID = ?', [userID], (err, cityResult) => {
+//         if (err || cityResult.length === 0) {
+//           console.error('Error fetching cityID:', err);
+//           return res.status(500).send('User or city not found');
+//         }
+    
+//         const cityID = cityResult[0].cityID;
+//         // 2. Отримуємо всі відгуки
+//         db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
+//             if (err) {
+//                 console.error('Error fetching feedbacks:', err);
+//                 return res.status(500).send('Database error');
+//             }
+
+//             const userIDs = [...new Set(results.map(item => item.userID))];
+//             const placeIDs = [...new Set(results.map(item => item.placeID))];
+
+//             const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
+//             const K = 10;
+//             //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
+//             const fs = require('fs');
+//             const path = require('path');
+
+//             const filesDir = path.join(__dirname, 'files');
+//             if (!fs.existsSync(filesDir)) {
+//                 fs.mkdirSync(filesDir);
+//             }
+
+//             const saveMatrixToCSV = (matrix, filename) => {
+//                 const csv = matrix.map(row => row.join(',')).join('\n');
+//                 fs.writeFileSync(path.join(filesDir, filename), csv);
+//             };
+//             saveMatrixToCSV(R, 'original_matrix.csv');
+//             // console.log('Original Rating Matrix:');
+//             // console.table(R);
+
+//             const randomMatrix = (rows, cols) =>
+//                 Array.from({ length: rows }, () =>
+//                     Array.from({ length: cols }, () => Math.random())
+//                 );
+
+//             const P = randomMatrix(R.length, K);
+//             const Q = randomMatrix(R[0].length, K);
+
+//             //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
+//             const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K);
+//             // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
+
+//             //! Зберігання в errors.csv
+//             const errorCSV = errorsPerEpoch.map(({ epoch, error, timeFormatted }) =>
+//                 `${epoch},${error},${timeFormatted}`).join('\n');
+//             fs.writeFileSync(path.join(filesDir, 'errors.csv'), `Epoch,Error,Time\n${errorCSV}`);
+//             // console.log('Error data saved to errors.csv');
+            
+//             const userIndex = userID - 1;
+//             const userVector = finalP[userIndex];
+
+//             const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
+
+//             const predictedRatings = finalQ
+//             .map((placeVector, index) => ({
+//                 placeID: index + 1,
+//                 rating: dotProduct(userVector, placeVector),
+//                 visited: R[userIndex][index] > 0
+//             }))
+//             .filter(item => !item.visited)
+//             .sort((a, b) => b.rating - a.rating);
+
+//             const placeIDsToFetch = predictedRatings.map(item => item.placeID);
+
+//             //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
+//             const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
+//             );
+//             const roundedMatrix = resultMatrix.map(row =>
+//                 row.map(value => Number(value.toFixed(2)))
+//             ); 
+
+//             // !Виведення матриці
+//             saveMatrixToCSV(roundedMatrix, 'predicted_matrix.csv');
+//             // console.log('Predicted rating matrix:');
+//             // console.table(roundedMatrix);
+            
+//             // console.table(resultMatrix);
+//             //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
+//             // console.log('Factorized Matrices:');
+//             // console.log('P:', finalP);
+//             // console.log('Q:', finalQ);
+//             console.log("Error", finalE);
+
+//             db.query(
+//                 'SELECT placeID, name, description FROM places WHERE placeID IN (?) AND cityID = ?',
+//                 [placeIDsToFetch, cityID],
+
+//                 (err, places) => {
+//                     if (err) {
+//                         console.error('Error fetching places:', err);
+//                         return res.status(500).send('Database error');
+//                     }
+
+//                     const recommendations = predictedRatings
+//                         .filter(item => places.some(p => p.placeID === item.placeID))
+//                         .map(item => {
+//                         const place = places.find(p => p.placeID === item.placeID);
+//                         return {
+//                             placeID: item.placeID,
+//                             name: place ? place.name : 'Невідоме місце',
+//                             description: place ? place.description : 'Опис недоступний',
+//                             predictedRating: Number(item.rating.toFixed(2))
+//                         };
+//                     });
+
+//                     res.json(recommendations);
+//                 }
+//             );
+//         });
+//     });
+// });
 
 app.get('/places', (req, res) => {
     db.query('SELECT placeID, name, description, address FROM places', (err, results) => {
@@ -331,6 +570,7 @@ app.get('/places', (req, res) => {
         res.json(results);
     });
 });
+
 app.get('/user-feedbacks/:userID', (req, res) => {
     const userID = req.params.userID;
 
