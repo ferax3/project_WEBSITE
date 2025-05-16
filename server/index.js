@@ -6,6 +6,8 @@ const cors = require('cors')
 app.use(express.json())
 app.use(cors())
 
+app.use('/images', express.static('public/images'));
+
 const db = mysql.createConnection({
     user: 'root',
     host: 'localhost',
@@ -198,7 +200,7 @@ async function trainFully(K) {
     const Q = randomMatrix(R[0].length, K);
 
     // ✅ Виконуємо факторизацію з логом помилок
-    const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K, 5000);
+    const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K, 100000);
     // ✅ Зберігаємо помилки по епохах
     const errorCSV = errorsPerEpoch.map(({ epoch, error, timeFormatted }) =>
         `${epoch},${error},${timeFormatted}`).join('\n');
@@ -437,129 +439,6 @@ app.get('/recommendations/:userID', async (req, res) => {
 
     res.json(predictedRatings);
 });
-
-
-
-// app.get('/recommendations/:userID', (req, res) => {
-//     const userID = parseInt(req.params.userID);
-//     // 1. Спочатку дізнаємось місто користувача
-//     db.query('SELECT cityID FROM users WHERE userID = ?', [userID], (err, cityResult) => {
-//         if (err || cityResult.length === 0) {
-//           console.error('Error fetching cityID:', err);
-//           return res.status(500).send('User or city not found');
-//         }
-    
-//         const cityID = cityResult[0].cityID;
-//         // 2. Отримуємо всі відгуки
-//         db.query('SELECT userID, placeID, rating FROM feedbacks', (err, results) => {
-//             if (err) {
-//                 console.error('Error fetching feedbacks:', err);
-//                 return res.status(500).send('Database error');
-//             }
-
-//             const userIDs = [...new Set(results.map(item => item.userID))];
-//             const placeIDs = [...new Set(results.map(item => item.placeID))];
-
-//             const R = createRatingMatrix(results, userIDs.length, placeIDs.length);
-//             const K = 10;
-//             //!ПЕРЕВІРКА(ОРИГІНАЛЬНОЇ МАТРИЦІ)
-//             const fs = require('fs');
-//             const path = require('path');
-
-//             const filesDir = path.join(__dirname, 'files');
-//             if (!fs.existsSync(filesDir)) {
-//                 fs.mkdirSync(filesDir);
-//             }
-
-//             const saveMatrixToCSV = (matrix, filename) => {
-//                 const csv = matrix.map(row => row.join(',')).join('\n');
-//                 fs.writeFileSync(path.join(filesDir, filename), csv);
-//             };
-//             saveMatrixToCSV(R, 'original_matrix.csv');
-//             // console.log('Original Rating Matrix:');
-//             // console.table(R);
-
-//             const randomMatrix = (rows, cols) =>
-//                 Array.from({ length: rows }, () =>
-//                     Array.from({ length: cols }, () => Math.random())
-//                 );
-
-//             const P = randomMatrix(R.length, K);
-//             const Q = randomMatrix(R[0].length, K);
-
-//             //! ДЛЯ ПЕРЕВІРКИ (ПАРАМЕТР Е В НАВЧАННЯ)
-//             const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K);
-//             // const { P: finalP, Q: finalQ } = matrixFactorization(R, P, Q, K);
-
-//             //! Зберігання в errors.csv
-//             const errorCSV = errorsPerEpoch.map(({ epoch, error, timeFormatted }) =>
-//                 `${epoch},${error},${timeFormatted}`).join('\n');
-//             fs.writeFileSync(path.join(filesDir, 'errors.csv'), `Epoch,Error,Time\n${errorCSV}`);
-//             // console.log('Error data saved to errors.csv');
-            
-//             const userIndex = userID - 1;
-//             const userVector = finalP[userIndex];
-
-//             const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
-
-//             const predictedRatings = finalQ
-//             .map((placeVector, index) => ({
-//                 placeID: index + 1,
-//                 rating: dotProduct(userVector, placeVector),
-//                 visited: R[userIndex][index] > 0
-//             }))
-//             .filter(item => !item.visited)
-//             .sort((a, b) => b.rating - a.rating);
-
-//             const placeIDsToFetch = predictedRatings.map(item => item.placeID);
-
-//             //! ДЛЯ ПЕРЕВІРКИ (ПРОГНОЗУВАННЯ МАТРИЦЬ)
-//             const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ))
-//             );
-//             const roundedMatrix = resultMatrix.map(row =>
-//                 row.map(value => Number(value.toFixed(2)))
-//             ); 
-
-//             // !Виведення матриці
-//             saveMatrixToCSV(roundedMatrix, 'predicted_matrix.csv');
-//             // console.log('Predicted rating matrix:');
-//             // console.table(roundedMatrix);
-            
-//             // console.table(resultMatrix);
-//             //! ДЛЯ ПЕРЕВІРКИ (МАТРИЦЬ P та Q)
-//             // console.log('Factorized Matrices:');
-//             // console.log('P:', finalP);
-//             // console.log('Q:', finalQ);
-//             console.log("Error", finalE);
-
-//             db.query(
-//                 'SELECT placeID, name, description FROM places WHERE placeID IN (?) AND cityID = ?',
-//                 [placeIDsToFetch, cityID],
-
-//                 (err, places) => {
-//                     if (err) {
-//                         console.error('Error fetching places:', err);
-//                         return res.status(500).send('Database error');
-//                     }
-
-//                     const recommendations = predictedRatings
-//                         .filter(item => places.some(p => p.placeID === item.placeID))
-//                         .map(item => {
-//                         const place = places.find(p => p.placeID === item.placeID);
-//                         return {
-//                             placeID: item.placeID,
-//                             name: place ? place.name : 'Невідоме місце',
-//                             description: place ? place.description : 'Опис недоступний',
-//                             predictedRating: Number(item.rating.toFixed(2))
-//                         };
-//                     });
-
-//                     res.json(recommendations);
-//                 }
-//             );
-//         });
-//     });
-// });
 
 app.get('/places', (req, res) => {
     db.query('SELECT placeID, name, description, address FROM places', (err, results) => {
@@ -860,7 +739,6 @@ app.get('/places/by-city/:cityID', (req, res) => {
         });
     });
 });
-app.use('/images', express.static('public/images'));
 
 //PlaceDetails.tsx
 app.get('/place/:placeID', (req, res) => {

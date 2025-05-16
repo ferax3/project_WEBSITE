@@ -132,12 +132,19 @@ const Home = () => {
             console.error('Error fetching new places:', err);
         });
     };
+
+
+    //! зміна, аби показувало всі рекомендації замість того, аби показувало тільки тих, які більше за 3
+    // const filteredRecommendations = selectedTag
+    // ? taggedRecommendations.filter(
+    //     place => place.tags?.includes(selectedTag) && place.predictedRating > 3
+    // )
+    // : [];
     const filteredRecommendations = selectedTag
     ? taggedRecommendations.filter(
-        place => place.tags?.includes(selectedTag) && place.predictedRating > 3
+        place => place.tags?.includes(selectedTag)
     )
     : [];
-        
     return (
         <div className='main-page'>
 
