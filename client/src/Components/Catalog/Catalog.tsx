@@ -112,7 +112,7 @@ const Catalog = () => {
                     </div>  
                     <div className="div2 item"> 
                         <div className='z-index-2 city-select-wrapper'>
-                            <label htmlFor="city-select">Місто:&nbsp;</label>
+                            <label htmlFor="city-select">Регіон:&nbsp;</label>
                             {cityID !== null && (
                             <select id="city-select" value={cityID} onChange={handleCityChange}>
                                 {cities.map(city => (
@@ -158,7 +158,11 @@ const Catalog = () => {
                         </Link>  
                     </div>
                 </div>
-
+                {filteredPlaces.length === 0 && (
+                    <h1 className="no-results-message">
+                        Немає такого об'єкта
+                    </h1>
+                )}
                 <div className="places-grid">
                 {filteredPlaces.map((place) => (
                     <Link to={`/place/${userID}/${place.placeID}`} className="place-link">

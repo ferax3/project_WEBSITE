@@ -170,7 +170,7 @@ const PlaceDetails = () => {
 
                     <div className="info">
                         <div className="header">
-                            {cityName && <p className="city">Місто: {cityName}</p>}
+                            {cityName && <p className="city">Регіон: {cityName}</p>}
                         </div>
                         <div className="card-info">
                             <div className="favourite-icon" onClick={toggleFavourite}>

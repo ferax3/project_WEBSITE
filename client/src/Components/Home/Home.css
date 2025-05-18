@@ -156,6 +156,17 @@
 .main-page .parent .item .z-index-2 {
   z-index: 2;
 }
+.main-page .parent .item a {
+  color: black;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease, text-decoration-color 0.3s ease;
+}
+.main-page .parent .item a:hover {
+  text-decoration: underline;
+  color: #027906;
+  text-decoration-color: #027906;
+}
 .main-page .parent .div3 {
   position: fixed;
   top: 50%;
@@ -199,4 +210,86 @@
 }
 .main-page .parent .div3 .red:hover {
   background-color: rgb(250, 10, 10);
+}
+
+@media (max-width: 1125px) {
+  .main-page .parent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 10px 10px 80px 10px;
+    height: auto;
+  }
+  .main-page .parent .item {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    min-width: 0;
+  }
+  .main-page .parent .div1 {
+    margin: 30px 0 10px;
+  }
+  .main-page .parent .div2 {
+    height: auto;
+    margin: 30px 0 10px;
+    padding: 5px 10px;
+  }
+  .main-page .parent .div6 {
+    order: 1;
+  }
+  .main-page .parent .div4 {
+    order: 2;
+  }
+  .main-page .parent .div5 {
+    order: 3;
+  }
+  .main-page .parent .div8 {
+    order: 4;
+  }
+  .main-page .parent .div7 {
+    order: 5;
+  }
+  .main-page .parent .div9 {
+    order: 6;
+  }
+  .main-page .parent select {
+    font-size: 13px;
+    padding: 3px 7px;
+  }
+  .main-page .parent .div3 {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: 60px;
+    background: rgba(98, 179, 0, 0.85);
+    -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: row !important;
+    justify-content: space-around;
+    align-items: center;
+    padding: 5px 15px;
+    z-index: 10000;
+    border-radius: 0;
+    top: auto !important;
+    transform: none !important;
+  }
+  .main-page .parent .div3 .circle-button {
+    margin: 0;
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    color: black;
+  }
+  .main-page .parent .div3 .circle-button.red {
+    background-color: rgb(241, 52, 52);
+    color: white;
+  }
+  .main-page .parent .div1, .main-page .parent .div2, .main-page .parent .div4, .main-page .parent .div5, .main-page .parent .div6, .main-page .parent .div7, .main-page .parent .div8, .main-page .parent .div9 {
+    grid-area: unset !important;
+  }
 }/*# sourceMappingURL=Home.css.map */

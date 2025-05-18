@@ -102,7 +102,7 @@ const fetchFavourites = (userID: string, cityID: number) => {
                     </div>  
                     <div className="div2 item"> 
                         <div className='z-index-2 city-select-wrapper'>
-                            <label htmlFor="city-select">Місто:&nbsp;</label>
+                            <label htmlFor="city-select">Регіон:&nbsp;</label>
                             {cityID !== null && (
                             <select id="city-select" value={cityID} onChange={handleCityChange}>
                                 {cities.map(city => (

@@ -156,6 +156,17 @@
             .z-index-2{
                 z-index: 2;
             }
+            a {
+                color: black;                // або інший бажаний колір
+                text-decoration: none;      // щоб прибрати підкреслення
+                font-weight: 500;
+                transition: color 0.3s ease, text-decoration-color 0.3s ease;
+                &:hover {
+                    text-decoration: underline;
+                    color: #027906;          // зелений при наведенні, можна змінити
+                    text-decoration-color:  #027906;
+                }
+            }
         }
 
         .div3 { 
@@ -210,5 +221,85 @@
         }
     }
 }
+@media (max-width: 1125px) {
+  .main-page {
+    .parent {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      padding: 10px 10px 80px 10px;
+      height: auto;
 
-    
+      .item {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        min-width: 0;
+      }
+
+      .div1 {
+        margin: 30px 0 10px;
+      }
+
+      .div2 {
+        height: auto;
+        margin: 30px 0 10px;
+        padding: 5px 10px;
+      }
+
+      // порядок блоків
+      .div6 { order: 1; } // Рекомендація
+      .div4 { order: 2; } // За тегом
+      .div5 { order: 3; } // Вподобані
+      .div8 { order: 4; } // Топ
+      .div7 { order: 5; } // Нові
+      .div9 { order: 6; } // Статистика
+
+      select {
+        font-size: 13px;
+        padding: 3px 7px;
+      }
+
+      .div3 {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        height: 60px;
+        background: rgba(98, 179, 0, 0.85);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: row !important;
+        justify-content: space-around;
+        align-items: center;
+        padding: 5px 15px;
+        z-index: 10000;
+        border-radius: 0;
+        top: auto !important;
+        transform: none !important;
+
+        .circle-button {
+          margin: 0;
+          width: 45px;
+          height: 45px;
+          font-size: 22px;
+          background-color: rgba(255, 255, 255, 0.6);
+          border: 2px solid rgba(255, 255, 255, 0.6);
+          color: black;
+        }
+
+        .circle-button.red {
+          background-color: rgb(241, 52, 52);
+          color: white;
+        }
+      }
+
+      // обов'язкове скидання grid-area
+      .div1, .div2, .div4, .div5, .div6, .div7, .div8, .div9 {
+        grid-area: unset !important;
+      }
+    }
+  }
+}
+

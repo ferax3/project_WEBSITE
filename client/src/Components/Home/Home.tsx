@@ -95,24 +95,29 @@ const Home = () => {
     };
     const fetchRecommendations = () => {
         Axios.get(`http://localhost:3002/recommendations/${userID}`)
-          .then((res) => {
-            setRecommendations(res.data);
-            //!ADD
-            const places = res.data;
-            const placeIDs = places.map(p => p.placeID);
-            Axios.get(`http://localhost:3002/place-tags?ids=${placeIDs.join(',')}`)
-                .then(tagRes => {
-                const tagMap = tagRes.data; // { placeID: [теги] }
-                const enriched = places.map(p => ({
-                    ...p,
-                    tags: tagMap[p.placeID] || []
-                }));
-                setTaggedRecommendations(enriched);
-        });
-          })
-          .catch((err) => {
+        .then((res) => {
+            if (Array.isArray(res.data)) {
+                setRecommendations(res.data);
+                //!ADD
+                const places = res.data;
+                const placeIDs = places.map(p => p.placeID);
+                Axios.get(`http://localhost:3002/place-tags?ids=${placeIDs.join(',')}`)
+                    .then(tagRes => {
+                        const tagMap = tagRes.data; // { placeID: [теги] }
+                        const enriched = places.map(p => ({
+                            ...p,
+                            tags: tagMap[p.placeID] || []
+                        }));
+                        setTaggedRecommendations(enriched);
+                    });
+            } else if (res.data.massage) {
+                setRecommendations([]);
+                alert(res.data.message);
+            }
+        })
+        .catch((err) => {
             console.error('Error fetching recommendations:', err);
-          });
+        });
     };
     const fetchFavourites = () => {
         Axios.get(`http://localhost:3002/favourites/${userID}`)
@@ -163,7 +168,7 @@ const Home = () => {
                 </div>
                 <div className="div2 item"> 
                     <div className='z-index-2 city-select-wrapper'>
-                        <label htmlFor="city-select">Місто:&nbsp;</label>
+                        <label htmlFor="city-select">Регіон:&nbsp;</label>
                         {cityID !== null && (
                         <select id="city-select" value={cityID} onChange={handleCityChange}>
                             {cities.map(city => (
@@ -223,11 +228,15 @@ const Home = () => {
                             <ul>
                             {selectedTag ? (
                                 filteredRecommendations.length > 0 ? (
-                                filteredRecommendations.slice(0, 5).map(place => (
-                                    <li key={place.placeID}>{place.name}</li>
-                                ))
+                                    filteredRecommendations.slice(0, 5).map(place => (
+                                        <ul>
+                                            <Link to={`/place/${userID}/${place.placeID}`}>
+                                                {place.name}
+                                            </Link>
+                                        </ul>
+                                    ))
                                 ) : (
-                                <li>Немає місць за обраним тегом</li>
+                                    <li>Немає місць за обраним тегом</li>
                                 )
                             ) : (
                                 <li>Оберіть тег, щоб побачити місця</li>
@@ -237,16 +246,18 @@ const Home = () => {
                 </div>
                 <div className="div5 item">
                     <div className='z-index-2'>
-                        <h2>Обрані місця</h2>
+                        <h2>Вподобані місця</h2>
                         <ul>
                         {favourites.length > 0 ? (
                             favourites.map((place) => (
                             <li key={place.placeID}>
-                                {place.name}
+                                <Link to={`/place/${userID}/${place.placeID}`}>
+                                    {place.name}
+                                </Link>
                             </li>
                             ))
                         ) : (
-                            <li>Немає обраних місць</li>
+                            <li>Немає вподобаних місць</li>
                         )}
                         </ul>
                     </div> 
@@ -256,9 +267,14 @@ const Home = () => {
                         <h2>Рекомендація</h2>
                         {recommendations.length > 0 ? (
                             recommendations.slice(0, 5).map((place) => (
-                            <li key={place.placeID}>
-                                {place.name} — {place.predictedRating}
-                            </li>
+                                <li key={place.placeID}>
+                                    <Link to={`/place/${userID}/${place.placeID}`}>
+                                        {place.name}
+                                    </Link> — {place.predictedRating}
+                                </li>
+                            // <li key={place.placeID}>
+                            //     {place.name} — {place.predictedRating}
+                            // </li>
                             ))
                         ) : (
                             <li>Немає рекомендацій</li>
@@ -271,7 +287,9 @@ const Home = () => {
                         {newPlaces.length > 0 ? (
                             newPlaces.map(place => (
                             <li key={place.placeID}>
-                                {place.name}
+                                <Link to={`/place/${userID}/${place.placeID}`}>
+                                    {place.name}
+                                </Link>
                             </li>
                             ))
                         ) : (
@@ -281,11 +299,13 @@ const Home = () => {
                 </div>
                 <div className="div8 item"> 
                     <div className='z-index-2'>
-                        <h2>Топ-місця міста</h2>
+                        <h2>Топ-місця регіону</h2>
                         <ul>
                         {topPlaces.map(place => (
                             <li key={place.placeID}>
-                            {place.name} – {place.avgRating}
+                                <Link to={`/place/${userID}/${place.placeID}`}>
+                                    {place.name}
+                                </Link> – {place.avgRating}
                             </li>
                         ))}
                         </ul>
