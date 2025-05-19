@@ -167,6 +167,34 @@
                     text-decoration-color:  #027906;
                 }
             }
+            .no-recommendation-message {
+                padding: 15px 20px;
+                border-radius: 12px;
+                color: black;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 1.6;
+                transition: all 0.3s ease;
+                max-width: 90%;
+                margin: 0 auto;
+                position: relative;
+                z-index: 5;    
+            }
+
+            .go-to-catalog {
+                display: inline-block;
+                margin-top: 10px;
+                color: #027906;
+                font-weight: 600;
+                text-decoration: none;
+                // border-bottom: 2px solid transparent;
+                transition: all 0.3s ease;
+            }
+
+            .go-to-catalog:hover {
+                text-decoration: underline;
+                color: #045d05;
+            }
         }
 
         .div3 { 

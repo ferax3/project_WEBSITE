@@ -21,6 +21,8 @@ const Home = () => {
     const [selectedTag, setSelectedTag] = useState('');
     const [tags, setTags] = useState([]);
     const [taggedRecommendations, setTaggedRecommendations] = useState([]);
+    const [noRecommendationMessage, setNoRecommendationMessage] = useState('');
+
 
     useEffect(() => {
         Axios.get(`http://localhost:3002/user/${userID}`)
@@ -98,6 +100,7 @@ const Home = () => {
         .then((res) => {
             if (Array.isArray(res.data)) {
                 setRecommendations(res.data);
+                setNoRecommendationMessage('');
                 //!ADD
                 const places = res.data;
                 const placeIDs = places.map(p => p.placeID);
@@ -110,9 +113,10 @@ const Home = () => {
                         }));
                         setTaggedRecommendations(enriched);
                     });
-            } else if (res.data.massage) {
+            } else if (res.data.message) {
                 setRecommendations([]);
-                alert(res.data.message);
+                // alert(res.data.message);
+                setNoRecommendationMessage(res.data.message);
             }
         })
         .catch((err) => {
@@ -272,10 +276,16 @@ const Home = () => {
                                         {place.name}
                                     </Link> — {place.predictedRating}
                                 </li>
-                            // <li key={place.placeID}>
-                            //     {place.name} — {place.predictedRating}
-                            // </li>
                             ))
+                        ) : noRecommendationMessage ? (
+                            <p className='no-recommendation-message'>
+                                    {noRecommendationMessage}
+                                    {/* <p>Оцініть принаймні 5 місць, щоб ми могли підібрати найкращі рекомендації саме для вас!</p> */}
+                                    <br />
+                                    <Link to={`/catalog/${userID}`} className="go-to-catalog">
+                                        Перейти до Каталогу
+                                    </Link>
+                            </p>
                         ) : (
                             <li>Немає рекомендацій</li>
                         )}

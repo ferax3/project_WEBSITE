@@ -390,7 +390,7 @@ app.get('/recommendations/:userID', async (req, res) => {
 
     if (featureVector === null) {
         if (countRow.cnt < 5) {
-            return res.status(200).json({ message: "Потрібно поставити більше оцінок (мінімум 5), щоб отримати рекомендації" });
+            return res.status(200).json({ message: "Ваші рекомендації з’являться після оцінювання 5 місць" });
         } else {
             await trainUser(userID, K); // ❗ навчання одного користувача
         }
