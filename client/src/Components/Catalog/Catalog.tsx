@@ -26,7 +26,6 @@ const Catalog = () => {
         Axios.get(`http://localhost:3002/places/by-city/${cityID}`)
         .then((res) => {
             setPlaces(res.data);
-            // зібрати всі унікальні теги
             const allTags = new Set();
             res.data.forEach(p => {
                 (p.tags || []).forEach(tag => allTags.add(tag));
@@ -56,9 +55,6 @@ const Catalog = () => {
         });
     };
 
-    // const filteredPlaces = places.filter(place =>
-    //     place.name.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
     const filteredPlaces = places.filter(place => {
         const matchesSearch = place.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesTag = selectedTag === '' || (place.tags || []).includes(selectedTag);

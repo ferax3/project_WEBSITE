@@ -89,14 +89,6 @@ function matrixFactorization(R, P, Q, K, steps = 15000, alpha = 0.005, beta = 0.
 
 }
 
-// Function to create rating matrix
-function createRatingMatrix(feedbacks, userCount, placeCount) {
-    const R = Array.from({ length: userCount }, () => Array(placeCount).fill(0));
-    feedbacks.forEach(({ userID, placeID, rating }) => {
-        R[userID - 1][placeID - 1] = rating;
-    });
-    return R;
-}
 
 app.listen(3002, ()=>{
     console.log("Server is running on port 3002");
@@ -160,24 +152,20 @@ async function trainFully(K) {
         const csv = matrix.map(row => row.join(',')).join('\n');
         fs.writeFileSync(path.join(filesDir, filename), csv);
     };
-    // Отримуємо користувачів з ≥5 оцінками
     const activeUsers = await getQuery(`
         SELECT userID FROM feedbacks GROUP BY userID HAVING COUNT(*) >= 5
     `);
     const userIDIndex = new Map();
     activeUsers.forEach((u, i) => userIDIndex.set(u.userID, i));
 
-    // Отримуємо місця з ≥5 оцінками
     const activePlaces = await getQuery(`
         SELECT placeID FROM feedbacks GROUP BY placeID HAVING COUNT(*) >= 5
     `);
     const placeIDIndex = new Map();
     activePlaces.forEach((p, i) => placeIDIndex.set(p.placeID, i));
 
-    // Завантажуємо всі відгуки
     const feedbacks = await getQuery(`SELECT userID, placeID, rating FROM feedbacks`);
 
-    // Створюємо рейтинг-матрицю R (тільки для активних)
     const R = Array.from({ length: activeUsers.length }, () =>
         Array(activePlaces.length).fill(0)
     );
@@ -190,7 +178,6 @@ async function trainFully(K) {
         }
     });
 
-    // ✅ Зберігаємо оригінальну матрицю R
     saveMatrixToCSV(R, 'original_matrix.csv');
 
     const randomMatrix = (rows, cols) => Array.from({ length: rows }, () =>
@@ -199,23 +186,19 @@ async function trainFully(K) {
     const P = randomMatrix(R.length, K);
     const Q = randomMatrix(R[0].length, K);
 
-    // ✅ Виконуємо факторизацію з логом помилок
     const { P: finalP, Q: finalQ, e: finalE, errorsPerEpoch } = matrixFactorization(R, P, Q, K, 100000);
-    // ✅ Зберігаємо помилки по епохах
     const errorCSV = errorsPerEpoch.map(({ epoch, error, timeFormatted }) =>
         `${epoch},${error},${timeFormatted}`).join('\n');
     fs.writeFileSync(path.join(filesDir, 'errors.csv'), `Epoch,Error,Time\n${errorCSV}`);
 
-    // ✅ Генеруємо прогнозовану матрицю
     const dotProduct = (a, b) => a.reduce((sum, val, idx) => sum + val * b[idx], 0);
     const resultMatrix = finalP.map(rowP => finalQ.map(colQ => dotProduct(rowP, colQ)));
     const roundedMatrix = resultMatrix.map(row =>
         row.map(value => Number(value.toFixed(2)))
     );
-    // ✅ Зберігаємо прогнозовану матрицю
+
     saveMatrixToCSV(roundedMatrix, 'predicted_matrix.csv');
 
-    // Зберігаємо у users
     for (let i = 0; i < activeUsers.length; i++) {
         const jsonVec = JSON.stringify(finalP[i]);
         await getQuery(`UPDATE users SET featureVector = ? WHERE userID = ?`, [
@@ -224,7 +207,6 @@ async function trainFully(K) {
         ]);
     }
 
-    // Зберігаємо у places
     for (let j = 0; j < activePlaces.length; j++) {
         const jsonVec = JSON.stringify(finalQ[j]);
         await getQuery(`UPDATE places SET featureVector = ? WHERE placeID = ?`, [
@@ -233,7 +215,7 @@ async function trainFully(K) {
         ]);
     }
 
-    console.log("✅ Повне навчання завершено.");
+    console.log("Повне навчання завершено.");
 }
 
 async function trainUser(userID, K) {
@@ -270,6 +252,7 @@ async function trainUser(userID, K) {
 
     await getQuery(`UPDATE users SET featureVector = ? WHERE userID = ?`, [jsonVec, userID]);
 }
+
 async function trainUserLocal(userID, K) {
     const userRows = await getQuery(`
         SELECT cityID, featureVector FROM users WHERE userID = ?
@@ -294,7 +277,7 @@ async function trainUserLocal(userID, K) {
     });
 
     const Q = places.map(p => p.featureVector ? JSON.parse(p.featureVector) : Array(K).fill(0));
-    // 3. P — вектор користувача: або з БД, або випадковий
+
     let P;
     if (user.featureVector) {
         P = [JSON.parse(user.featureVector)];
@@ -307,6 +290,7 @@ async function trainUserLocal(userID, K) {
 
     await getQuery(`UPDATE users SET featureVector = ? WHERE userID = ?`, [jsonVec, userID]);
 }
+
 async function checkAndTrainPlacesWithEnoughRatings(K) {
     const places = await getQuery(`
         SELECT p.placeID FROM places p
@@ -320,6 +304,7 @@ async function checkAndTrainPlacesWithEnoughRatings(K) {
         await trainPlace(placeID, K);
     }
 }
+
 async function trainPlace(placeID, K) {
     const users = await getQuery(`
         SELECT u.userID, u.featureVector
@@ -356,7 +341,7 @@ app.get('/recommendations/:userID', async (req, res) => {
     const userID = parseInt(req.params.userID);
     const K = 15;
 
-    // 1. Перевіряємо чи потрібно повне навчання
+    // повне навчання?
     const userStats = await getQuery(`
         SELECT COUNT(*) as total, SUM(CASE WHEN featureVector IS NULL THEN 1 ELSE 0 END) as nullCount FROM users
     `);
@@ -371,10 +356,10 @@ app.get('/recommendations/:userID', async (req, res) => {
     const allPlacesNull = totalPlaces === nullPlaces;
 
     if (allUsersNull && allPlacesNull) {
-        await trainFully(K); // ❗ повне навчання 1 раз
+        await trainFully(K);
     }
 
-    // 2. Перевіряємо, чи user має featureVector
+    // користувач має приховані особливості? навчання 1 користувача
     const userRows = await getQuery(
         'SELECT featureVector, cityID FROM users WHERE userID = ?', [userID]
     );
@@ -392,16 +377,16 @@ app.get('/recommendations/:userID', async (req, res) => {
         if (countRow.cnt < 5) {
             return res.status(200).json({ message: "Ваші рекомендації з’являться після оцінювання 5 місць" });
         } else {
-            await trainUser(userID, K); // ❗ навчання одного користувача
+            await trainUser(userID, K); 
         }
     }
+    // донавчання по місту користувача
+    await trainUserLocal(userID, K);
 
-    await trainUserLocal(userID, K); // ❗ донавчання по місту користувача
-
-    // 3. Перевірити місця з NULL які вже мають ≥5 оцінок
+    // перевірка: чи має місце Null, коли має >= 5 оцінок
     await checkAndTrainPlacesWithEnoughRatings(K);
 
-    // 4. Побудова рекомендацій...
+    // демонстрація рекомендації
     const fvRow = await getQuery(
         'SELECT featureVector FROM users WHERE userID = ?', [userID]
     );
@@ -631,7 +616,6 @@ app.get('/favourites/:userID', (req, res) => {
 app.get('/new-places/:userID', (req, res) => {
     const userID = parseInt(req.params.userID);
 
-    // 1. Дізнаємось місто користувача
     db.query('SELECT cityID FROM users WHERE userID = ?', [userID], (err, userResult) => {
     if (err || userResult.length === 0) {
       console.error('Error fetching user cityID:', err);
@@ -639,7 +623,7 @@ app.get('/new-places/:userID', (req, res) => {
     }
     const cityID = userResult[0].cityID;
     
-        //!НАДАЛІ ЗМІНИТИ З 8 на МЕНШЕ ЧИСЛО!
+        //!НАДАЛІ ЗМІНИТИ З 9 на!
         const sql = `
             SELECT p.placeID, p.name, p.description, COUNT(f.feedbackID) AS feedbackCount
             FROM places p
@@ -693,6 +677,7 @@ app.get('/tags', (req, res) => {
         res.json(results);
     });
 });
+
 //Catalog.tsx
 app.get('/places/by-city/:cityID', (req, res) => {
     const cityID = req.params.cityID;
@@ -771,8 +756,6 @@ app.get('/feedbacks/comments/:placeID', (req, res) => {
 });
 app.get('/similar-places/:placeID', (req, res) => {
     const placeID = parseInt(req.params.placeID);
-
-    // 1. Отримати місто та теги поточного місця
     const queryCityAndTags = `
         SELECT p.cityID, pt.tagID
         FROM places p
@@ -788,7 +771,6 @@ app.get('/similar-places/:placeID', (req, res) => {
         const cityID = results[0].cityID;
         const tagIDs = results.map(r => r.tagID);
 
-        // 2. Знайти місця з того ж міста та тегами, крім самого місця
         const querySimilarPlaces = `
             SELECT DISTINCT p.placeID, p.name, p.description, p.imagePath
             FROM places p
@@ -803,7 +785,8 @@ app.get('/similar-places/:placeID', (req, res) => {
         });
     });
 });
-// POST - додати до вподобань
+
+// додати до вподобань
 app.post('/favourites', (req, res) => {
     const { userID, placeID } = req.body;
     const sql = `INSERT INTO favourites (userID, placeID, datetime) VALUES (?, ?, NOW())`;
@@ -813,7 +796,7 @@ app.post('/favourites', (req, res) => {
     });
 });
 
-// DELETE - видалити з вподобань
+// видалити з вподобань
 app.delete('/favourites/:userID/:placeID', (req, res) => {
     const { userID, placeID } = req.params;
     const sql = `DELETE FROM favourites WHERE userID = ? AND placeID = ?`;
@@ -829,20 +812,19 @@ app.post('/rate', (req, res) => {
         return res.status(400).send('Missing parameters');
     }
 
-    // Перевіряємо, чи вже існує оцінка
     const checkQuery = 'SELECT * FROM feedbacks WHERE userID = ? AND placeID = ?';
     db.query(checkQuery, [userID, placeID], (err, results) => {
         if (err) return res.status(500).send('Database error');
 
         if (results.length > 0) {
-            // Оновлюємо оцінку
+            // Оновлення оцінки
             const updateQuery = 'UPDATE feedbacks SET rating = ? WHERE userID = ? AND placeID = ?';
             db.query(updateQuery, [rating, userID, placeID], (err2) => {
                 if (err2) return res.status(500).send('Database error');
                 res.send({ message: 'Rating updated' });
             });
         } else {
-            // Додаємо нову оцінку
+            // Додання оцінки
             const insertQuery = 'INSERT INTO feedbacks (userID, placeID, rating, reviewDate) VALUES (?, ?, ?, NOW())';
             db.query(insertQuery, [userID, placeID, rating], (err3) => {
                 if (err3) return res.status(500).send('Database error');
@@ -851,6 +833,8 @@ app.post('/rate', (req, res) => {
         }
     });
 });
+
+//показ оцінки
 app.get('/rating', (req, res) => {
     const { userID, placeID } = req.query;
 
@@ -860,7 +844,7 @@ app.get('/rating', (req, res) => {
         if (results.length > 0) {
             res.json({ rating: results[0].rating });
         } else {
-            res.json({ rating: 0 }); // якщо ще не оцінював
+            res.json({ rating: 0 });
         }
     });
 });
@@ -873,14 +857,14 @@ app.post('/comment', (req, res) => {
         if (err) return res.status(500).send('Database error');
 
         if (results.length > 0) {
-            // оновити існуючий коментар
+            // оновити існуючий коментар у користувача
             const updateSql = 'UPDATE feedbacks SET comment = ?, reviewDate = ? WHERE userID = ? AND placeID = ?';
             db.query(updateSql, [comment, reviewDate, userID, placeID], (err2) => {
                 if (err2) return res.status(500).send('Database error');
                 res.send({ message: 'Коментар оновлено' });
             });
         } else {
-            // вставити новий запис
+            // вставити новий запис для користувача
             const insertSql = 'INSERT INTO feedbacks (userID, placeID, rating, comment, reviewDate) VALUES (?, ?, 0, ?, ?)';
             db.query(insertSql, [userID, placeID, comment, reviewDate], (err3) => {
                 if (err3) return res.status(500).send('Database error');
@@ -954,7 +938,6 @@ app.get('/all-favourites/:userID', (req, res) => {
 app.get('/random-place/:userID', (req, res) => {
   const userID = req.params.userID;
 
-  // 1. Дізнаємось місто користувача
   const citySql = 'SELECT cityID FROM users WHERE userID = ?';
 
   db.query(citySql, [userID], (err, cityResult) => {
@@ -965,7 +948,6 @@ app.get('/random-place/:userID', (req, res) => {
 
     const cityID = cityResult[0].cityID;
 
-    // 2. Випадкове місце з цього міста
     const randomPlaceSql = `
       SELECT placeID, name, description
       FROM places
@@ -980,7 +962,7 @@ app.get('/random-place/:userID', (req, res) => {
         return res.status(500).send('No place found in city');
       }
 
-      res.json(placeResult[0]); // повертаємо placeID і т.д.
+      res.json(placeResult[0]);
     });
   });
 });
