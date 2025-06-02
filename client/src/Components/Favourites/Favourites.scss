@@ -209,14 +209,14 @@
             position: relative;
 
             .place-image {
-                width: 40%; // ліва частина
+                width: 40%;
                 height: 100%;
                 object-fit: cover;
                 display: block;
             }
 
             .z-index-2 {
-                width: 60%; // права частина
+                width: 60%;
                 padding: 16px;
                 display: flex;
                 flex-direction: column;
@@ -245,7 +245,7 @@
                       font-size: 14px;
                       font-weight: 500;
                       color: #333;
-                      border: 1px solid #06D001; //#b5ec9c;
+                      border: 1px solid #06D001;
                     }
                 }
             }
@@ -261,10 +261,10 @@
             border: 2px solid white;
             border-radius: 15px;
             display: flex;
-            justify-content: center;  /* по горизонталі */
-            align-items: center;      /* по вертикалі */
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            background: rgba(225, 255, 0, 0.9); //rgba(225, 255, 0, 0.9)
+            background: rgba(225, 255, 0, 0.9);
             border: 1px solid rgba(225, 255, 0, 0.9);
             flex-direction: row;
             

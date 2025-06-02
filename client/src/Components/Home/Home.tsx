@@ -106,7 +106,7 @@ const Home = () => {
                 const placeIDs = places.map(p => p.placeID);
                 Axios.get(`http://localhost:3002/place-tags?ids=${placeIDs.join(',')}`)
                     .then(tagRes => {
-                        const tagMap = tagRes.data; // { placeID: [теги] }
+                        const tagMap = tagRes.data; 
                         const enriched = places.map(p => ({
                             ...p,
                             tags: tagMap[p.placeID] || []
@@ -115,7 +115,6 @@ const Home = () => {
                     });
             } else if (res.data.message) {
                 setRecommendations([]);
-                // alert(res.data.message);
                 setNoRecommendationMessage(res.data.message);
             }
         })

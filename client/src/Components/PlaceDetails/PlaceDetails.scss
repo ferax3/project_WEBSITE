@@ -37,10 +37,10 @@
         border: 2px solid white;
         border-radius: 15px;
         display: flex;
-        justify-content: center;  /* по горизонталі */
-        align-items: center;      /* по вертикалі */
+        justify-content: center;
+        align-items: center;
         text-align: center;
-        background: rgba(225, 255, 0, 0.9); //rgba(225, 255, 0, 0.9)
+        background: rgba(225, 255, 0, 0.9);
         border: 1px solid rgba(225, 255, 0, 0.9);
         flex-direction: row;
         
@@ -103,22 +103,15 @@
         min-height: 500px;
         margin-right: 20px;
 
-        justify-content: space-between;     // центрування по горизонталі
-        align-items: center;         // центрування по вертикалі
-        height: 100vh;               // займає весь екран
-        padding-left: 120px;         // відступ зліва під меню
-        gap: 40px;                   // відстань між картинкою і контентом
+        justify-content: space-between;
+        align-items: center;
+        height: 100vh;
+        padding-left: 120px;
+        gap: 40px;
         box-sizing: border-box;
         .image{
-            // background: rgba(225, 255, 0, 0.9);
-            // border-radius: 15px;
-            // border: 1px solid rgba(225, 255, 0, 0.9);
-            // margin: 40px 100px;
-            
-            // width: 40%;
-            // margin: 40px 100px;
 
-            height: 500px; // або будь-яка висота, яку хочеш
+            height: 500px;
             border-radius: 15px;
             overflow: hidden;
             position: relative;
@@ -128,9 +121,6 @@
             background: rgba(225, 255, 0, 0.9);
             border: 1px solid rgba(225, 255, 0, 0.9);
             flex: 0 0 40%;
-            // height: 730px; // фіксована висота
-            // object-fit: cover;
-            // display: block;
             z-index: 10;
             overflow: hidden;
             position: relative;
@@ -222,7 +212,7 @@
                             font-size: 14px;
                             font-weight: 500;
                             color: #333;
-                            border: 1px solid #06D001; //#b5ec9c;
+                            border: 1px solid #06D001;
                             span{
                                 position: relative;
                                 z-index: 7;    
@@ -282,10 +272,8 @@
             text-align: center;
         }
         .comments-section {
-            // background-color: rgba(255, 255, 255, 0.6);
             padding: 20px 30px;
             border-radius: 12px;
-            // margin: 40px 100px;
 
             h3 {
                 font-size: 22px;
@@ -358,7 +346,6 @@
                 gap: 20px;
                 overflow-x: auto;
                 padding-bottom: 10px;
-                // // приховати стандартні scroll bar (опціонально)
                 // scrollbar-width: none;
                 // &::-webkit-scrollbar {
                 // display: none;
@@ -371,6 +358,7 @@
                 flex-direction: row;
                 background: rgba(225, 255, 0, 0.9);
                 border: 1px solid rgba(225, 255, 0, 0.9);
+                min-height: 300px;
                 border-radius: 15px;
                 text-decoration: none;
                 color: black;

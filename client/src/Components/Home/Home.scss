@@ -143,10 +143,10 @@
             border: 2px solid white;
             border-radius: 15px;
             display: flex;
-            justify-content: center;  /* по горизонталі */
-            align-items: center;      /* по вертикалі */
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            background: rgba(225, 255, 0, 0.9); //rgba(225, 255, 0, 0.9)
+            background: rgba(225, 255, 0, 0.9);
             border: 1px solid rgba(225, 255, 0, 0.9);
             flex-direction: row;
 
@@ -157,13 +157,13 @@
                 z-index: 2;
             }
             a {
-                color: black;                // або інший бажаний колір
-                text-decoration: none;      // щоб прибрати підкреслення
+                color: black;
+                text-decoration: none;
                 font-weight: 500;
                 transition: color 0.3s ease, text-decoration-color 0.3s ease;
                 &:hover {
                     text-decoration: underline;
-                    color: #027906;          // зелений при наведенні, можна змінити
+                    color: #027906;
                     text-decoration-color:  #027906;
                 }
             }
@@ -187,7 +187,6 @@
                 color: #027906;
                 font-weight: 600;
                 text-decoration: none;
-                // border-bottom: 2px solid transparent;
                 transition: all 0.3s ease;
             }
 
@@ -275,13 +274,12 @@
         padding: 5px 10px;
       }
 
-      // порядок блоків
-      .div6 { order: 1; } // Рекомендація
-      .div4 { order: 2; } // За тегом
-      .div5 { order: 3; } // Вподобані
-      .div8 { order: 4; } // Топ
-      .div7 { order: 5; } // Нові
-      .div9 { order: 6; } // Статистика
+      .div6 { order: 1; } 
+      .div4 { order: 2; } 
+      .div5 { order: 3; } 
+      .div8 { order: 4; } 
+      .div7 { order: 5; } 
+      .div9 { order: 6; } 
 
       select {
         font-size: 13px;
@@ -322,8 +320,6 @@
           color: white;
         }
       }
-
-      // обов'язкове скидання grid-area
       .div1, .div2, .div4, .div5, .div6, .div7, .div8, .div9 {
         grid-area: unset !important;
       }

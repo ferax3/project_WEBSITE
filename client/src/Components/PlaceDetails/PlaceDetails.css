@@ -1,4 +1,3 @@
-@charset "UTF-8";
 .details-page .blob-outer-container {
   position: fixed;
   height: 100%;
@@ -35,8 +34,8 @@
   border: 2px solid white;
   border-radius: 15px;
   display: flex;
-  justify-content: center; /* по горизонталі */
-  align-items: center; /* по вертикалі */
+  justify-content: center;
+  align-items: center;
   text-align: center;
   background: rgba(225, 255, 0, 0.9);
   border: 1px solid rgba(225, 255, 0, 0.9);
@@ -338,6 +337,7 @@
   flex-direction: row;
   background: rgba(225, 255, 0, 0.9);
   border: 1px solid rgba(225, 255, 0, 0.9);
+  min-height: 300px;
   border-radius: 15px;
   text-decoration: none;
   color: black;
