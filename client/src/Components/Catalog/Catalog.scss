@@ -279,6 +279,7 @@
         .div3 { 
             position: fixed;
             top: 50%;
+              left: 0;
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
@@ -322,4 +323,117 @@
             }
         }
     }
+}
+
+@media (max-width: 1250px) {
+  .catalog-page {
+    .parent {
+      padding-right: 10px;
+      padding-left: 120px;
+      padding-top: 16px;
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 0 20px;
+
+        .div1,
+        .div2 {
+            display: flex;
+            align-items: center;
+        }
+
+        .div1 {
+            justify-content: flex-start;
+          .search-wrapper {
+            flex-direction: column;
+            gap: 8px;
+                        box-shadow: none;
+            background: none;
+
+            input {
+              width: 100%;
+              max-width: 300px;
+            }
+
+            select {
+              width: 100%;
+              max-width: 200px;
+            }
+          }
+        }
+
+        .div2 {
+            justify-content: flex-end;
+          .city-select-wrapper {
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: none;
+            background: none;
+
+            select {
+              width: 100%;
+              max-width: 200px;
+            }
+          }
+        }
+      }
+
+      .places-grid {
+        grid-template-columns: repeat(2, 1fr);
+        margin-left: 0;
+        justify-content: center;
+      }
+      .div3 {
+        width: 93px !important;
+        height: 450px !important;
+
+
+        .circle-button {
+          margin-bottom: 5px !important;
+          width: 60px !important;
+          height: 60px !important;
+          font-size: 34px !important;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 850px) {
+  .catalog-page {
+    .parent {
+      .places-grid {
+        grid-template-columns: 1fr; 
+        padding: 0 10px;
+      }
+
+      .places-card {
+        flex-direction: column;
+
+        .place-image {
+          width: 100%;
+          height: 200px;
+        }
+
+        .z-index-2 {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+@media (max-width: 730px) {
+  .catalog-page {
+    .parent {
+      .header {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+      }
+    }
+  }
 }

@@ -252,6 +252,7 @@
 .catalog-page .parent .div3 {
   position: fixed;
   top: 50%;
+  left: 0;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
@@ -291,4 +292,93 @@
 .catalog-page .parent .div3 .red:hover {
   transform: scale(1.1);
   background-color: rgb(250, 10, 10);
+}
+
+@media (max-width: 1250px) {
+  .catalog-page .parent {
+    padding-right: 10px;
+    padding-left: 120px;
+    padding-top: 16px;
+  }
+  .catalog-page .parent .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 0 20px;
+  }
+  .catalog-page .parent .header .div1,
+  .catalog-page .parent .header .div2 {
+    display: flex;
+    align-items: center;
+  }
+  .catalog-page .parent .header .div1 {
+    justify-content: flex-start;
+  }
+  .catalog-page .parent .header .div1 .search-wrapper {
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: none;
+    background: none;
+  }
+  .catalog-page .parent .header .div1 .search-wrapper input {
+    width: 100%;
+    max-width: 300px;
+  }
+  .catalog-page .parent .header .div1 .search-wrapper select {
+    width: 100%;
+    max-width: 200px;
+  }
+  .catalog-page .parent .header .div2 {
+    justify-content: flex-end;
+  }
+  .catalog-page .parent .header .div2 .city-select-wrapper {
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: none;
+    background: none;
+  }
+  .catalog-page .parent .header .div2 .city-select-wrapper select {
+    width: 100%;
+    max-width: 200px;
+  }
+  .catalog-page .parent .places-grid {
+    grid-template-columns: repeat(2, 1fr);
+    margin-left: 0;
+    justify-content: center;
+  }
+  .catalog-page .parent .div3 {
+    width: 93px !important;
+    height: 450px !important;
+  }
+  .catalog-page .parent .div3 .circle-button {
+    margin-bottom: 5px !important;
+    width: 60px !important;
+    height: 60px !important;
+    font-size: 34px !important;
+  }
+}
+@media (max-width: 850px) {
+  .catalog-page .parent .places-grid {
+    grid-template-columns: 1fr;
+    padding: 0 10px;
+  }
+  .catalog-page .parent .places-card {
+    flex-direction: column;
+  }
+  .catalog-page .parent .places-card .place-image {
+    width: 100%;
+    height: 200px;
+  }
+  .catalog-page .parent .places-card .z-index-2 {
+    width: 100%;
+  }
+}
+@media (max-width: 730px) {
+  .catalog-page .parent .header {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
 }/*# sourceMappingURL=Catalog.css.map */

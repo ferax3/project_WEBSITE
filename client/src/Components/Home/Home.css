@@ -238,17 +238,26 @@
 
 @media (max-width: 1125px) {
   .main-page .parent {
+    grid-template-rows: auto;
+    height: auto !important;
+    overflow: visible !important;
+    margin-left: 100px;
+    width: calc(100vw - 100px);
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
     padding: 10px 10px 80px 10px;
     height: auto;
+    font-size: 18px;
   }
   .main-page .parent .item {
     width: 100%;
     box-sizing: border-box;
     padding: 10px;
     min-width: 0;
+  }
+  .main-page .parent h2 {
+    font-size: 26px;
   }
   .main-page .parent .div1 {
     margin: 30px 0 10px;
@@ -258,62 +267,87 @@
     margin: 30px 0 10px;
     padding: 5px 10px;
   }
+  .main-page .parent .div2 .city-select-wrapper {
+    font-size: 24px;
+  }
   .main-page .parent .div6 {
     order: 1;
+    min-height: 180px;
   }
   .main-page .parent .div4 {
     order: 2;
+    min-height: 180px;
   }
   .main-page .parent .div5 {
     order: 3;
+    min-height: 180px;
   }
   .main-page .parent .div8 {
+    min-height: 180px;
     order: 4;
   }
   .main-page .parent .div7 {
     order: 5;
+    min-height: 180px;
   }
   .main-page .parent .div9 {
     order: 6;
+    min-height: 180px;
   }
   .main-page .parent select {
     font-size: 13px;
     padding: 3px 7px;
   }
-  .main-page .parent .div3 {
+  .main-page .parent .div1, .main-page .parent .div2, .main-page .parent .div4, .main-page .parent .div5, .main-page .parent .div6, .main-page .parent .div7, .main-page .parent .div8, .main-page .parent .div9 {
+    grid-area: unset !important;
+  }
+  .main-page .div3 {
     position: fixed;
-    bottom: 0;
+    top: 50%;
     left: 0;
-    right: 0;
-    width: 100vw;
-    height: 60px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    width: 93px !important;
+    height: 450px !important;
+    padding: 15px 0;
     background: rgba(98, 179, 0, 0.85);
     -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: row !important;
-    justify-content: space-around;
-    align-items: center;
-    padding: 5px 15px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 150px;
+    border-bottom-right-radius: 150px;
     z-index: 10000;
-    border-radius: 0;
-    top: auto !important;
-    transform: none !important;
   }
-  .main-page .parent .div3 .circle-button {
-    margin: 0;
-    width: 45px;
-    height: 45px;
-    font-size: 22px;
-    background-color: rgba(255, 255, 255, 0.6);
-    border: 2px solid rgba(255, 255, 255, 0.6);
+  .main-page .div3 .circle-button {
+    margin-bottom: 5px !important;
+    width: 60px !important;
+    height: 60px !important;
+    font-size: 34px !important;
     color: black;
   }
-  .main-page .parent .div3 .circle-button.red {
-    background-color: rgb(241, 52, 52);
-    color: white;
+}
+@media (max-width: 850px) {
+  .main-page .parent {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    margin-left: 100px;
+    width: calc(100vw - 100px);
+    gap: 15px;
+    padding: 20px 15px 60px 15px;
   }
-  .main-page .parent .div1, .main-page .parent .div2, .main-page .parent .div4, .main-page .parent .div5, .main-page .parent .div6, .main-page .parent .div7, .main-page .parent .div8, .main-page .parent .div9 {
+  .main-page .parent .div2 {
+    margin: 0;
+  }
+  .main-page .parent .div2 .city-select-wrapper {
+    padding: 0;
+    background: none;
+  }
+  .main-page .parent > .item {
     grid-area: unset !important;
+    order: unset !important;
+    width: 100%;
+    box-sizing: border-box;
   }
 }/*# sourceMappingURL=Home.css.map */
