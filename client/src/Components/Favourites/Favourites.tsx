@@ -81,7 +81,7 @@ const fetchFavourites = (userID: string, cityID: number) => {
                                 <input
                                 id="search"
                                 type="text"
-                                placeholder="місце..."
+                                placeholder="пам'ятки..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 />

@@ -205,8 +205,8 @@ const Home = () => {
                                     navigate(`/place/${userID}/${placeID}`);
                                 })
                                 .catch((err) => {
-                                    console.error('Не вдалося отримати випадкове місце', err);
-                                    alert('У цьому місті поки що немає місць.');
+                                    console.error('Не вдалося отримати випадкову пам\'ятку', err);
+                                    alert('У цьому регіоні поки що немає місць.');
                                 });
                             }}
                             >
@@ -219,7 +219,7 @@ const Home = () => {
                 </div>
                 <div className="div4 item"> 
                     <div className="z-index-2">
-                        <h2>Рекомендовані місця за&nbsp;
+                        <h2>Рекомендовані пам'ятки за&nbsp;
                             <select id="tag-select" value={selectedTag} onChange={e => setSelectedTag(e.target.value)}>
                                 <option disabled value="">тегом</option>
                                 {tags.map(tag => (
@@ -240,17 +240,17 @@ const Home = () => {
                                         </ul>
                                     ))
                                 ) : (
-                                    <li>Немає місць за обраним тегом</li>
+                                    <li>Немає пам'яток за обраним тегом</li>
                                 )
                             ) : (
-                                <li>Оберіть тег, щоб побачити місця</li>
+                                <li>Оберіть тег, щоб побачити пам'ятку</li>
                             )}
                             </ul>
                     </div>
                 </div>
                 <div className="div5 item">
                     <div className='z-index-2'>
-                        <h2>Вподобані місця</h2>
+                        <h2>Вподобані пам'ятки</h2>
                         <ul>
                         {favourites.length > 0 ? (
                             favourites.map((place) => (
@@ -261,7 +261,7 @@ const Home = () => {
                             </li>
                             ))
                         ) : (
-                            <li>Немає вподобаних місць</li>
+                            <li>Немає вподобаних пам'яток</li>
                         )}
                         </ul>
                     </div> 
@@ -293,7 +293,7 @@ const Home = () => {
                 </div>
                 <div className="div7 item"> 
                     <div className='z-index-2'>
-                        <h2>Нові місця</h2>
+                        <h2>Нові пам'ятки</h2>
                         {newPlaces.length > 0 ? (
                             newPlaces.map(place => (
                             <li key={place.placeID}>
@@ -303,13 +303,13 @@ const Home = () => {
                             </li>
                             ))
                         ) : (
-                            <li>Немає нових місць</li>
+                            <li>Немає нових пам'яток</li>
                         )}
                     </div> 
                 </div>
                 <div className="div8 item"> 
                     <div className='z-index-2'>
-                        <h2>Топ-місця регіону</h2>
+                        <h2>Топ-пам'яток регіону</h2>
                         <ul>
                         {topPlaces.map(place => (
                             <li key={place.placeID}>
@@ -325,9 +325,9 @@ const Home = () => {
                     <div className='z-index-2'>
                         <h2>Ваша статистика</h2>
                         <p>
-                            Ви вже відвідали {userStats?.visitedCount || 0} місць <br />
-                            Середній рейтинг ваших місць – {userStats?.avgRating || 0} <br />
-                            Відсоток відвіданих місць – {userStats?.visitedPercent || 0}%
+                            Ви вже відвідали {userStats?.visitedCount || 0} об'єктів <br />
+                            Середній рейтинг ваших пам'яток – {userStats?.avgRating || 0} <br />
+                            Відсоток відвіданих пам'яток – {userStats?.visitedPercent || 0}%
                         </p>
                     </div> 
                 </div>

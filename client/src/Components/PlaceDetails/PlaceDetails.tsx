@@ -232,7 +232,7 @@ const PlaceDetails = () => {
                     </div>
                     {similarPlaces.length > 0 && (
                         <div className="similar-places-section">
-                            <div className="section-title">Схожі місця за тегами</div>
+                            <div className="section-title">Схожі пам'ятки за тегами</div>
                             <div className="carousel">
                             {similarPlaces.map((place) => (
                                 <Link

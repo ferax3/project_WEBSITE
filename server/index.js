@@ -375,15 +375,15 @@ app.get('/recommendations/:userID', async (req, res) => {
 
     if (featureVector === null) {
         if (countRow.cnt < 5) {
-            return res.status(200).json({ message: "Ваші рекомендації з’являться після оцінювання 5 місць" });
+            return res.status(200).json({ message: "Ваші рекомендації з’являться після оцінювання 5 пам'яток" });
         } else {
             await trainUser(userID, K); 
         }
     }
-    // донавчання по місту користувача
+    // донавчання по регіону користувача
     await trainUserLocal(userID, K);
 
-    // перевірка: чи має місце Null, коли має >= 5 оцінок
+    // чи має місце Null, коли має >= 5 оцінок
     await checkAndTrainPlacesWithEnoughRatings(K);
 
     // демонстрація рекомендації
@@ -426,7 +426,9 @@ app.get('/recommendations/:userID', async (req, res) => {
 });
 
 app.get('/places', (req, res) => {
-    db.query('SELECT placeID, name, description, address FROM places', (err, results) => {
+    // db.query('SELECT placeID, name, description, address FROM places', (err, results) => {
+    db.query('SELECT placeID, name, cityID, description FROM places', (err, results) => {
+
         if (err) {
             console.error('Error fetching places:', err);
             return res.status(500).send('Database error');
@@ -605,12 +607,12 @@ app.get('/favourites/:userID', (req, res) => {
     `;
   
     db.query(sql, [userID], (err, results) => {
-      if (err) {
-        console.error('Error fetching favourites:', err);
-        return res.status(500).send('Database error');
-      }
-  
-      res.json(results);
+        if (err) {
+            console.error('Error fetching favourites:', err);
+            return res.status(500).send('Database error');
+        }
+    
+        res.json(results);
     });
 });
 app.get('/new-places/:userID', (req, res) => {
@@ -636,15 +638,16 @@ app.get('/new-places/:userID', (req, res) => {
         `;
     
         db.query(sql, [cityID], (err, results) => {
-        if (err) {
-            console.error('Error fetching new places:', err);
-            return res.status(500).send('Database error');
-        }
-    
-        res.json(results);
+            if (err) {
+                console.error('Error fetching new places:', err);
+                return res.status(500).send('Database error');
+            }
+        
+            res.json(results);
         });
     });
 });
+
 app.get('/place-tags', (req, res) => {
     const ids = req.query.ids?.split(',').map(Number);
     if (!ids || ids.length === 0) return res.json({});
