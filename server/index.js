@@ -199,6 +199,28 @@ async function trainFully(K) {
 
     saveMatrixToCSV(roundedMatrix, 'predicted_matrix.csv');
 
+    // метрики точності
+    let totalSquaredError = 0;
+    let totalAbsoluteError = 0;
+    let count = 0;
+    for (let i = 0; i < R.length; i++) {
+        for (let j = 0; j < R[i].length; j++) {
+            if (R[i][j] > 0) {
+                const predicted = resultMatrix[i][j];
+                const actual = R[i][j];
+                const error = actual - predicted;
+                totalSquaredError += error ** 2;
+                totalAbsoluteError += Math.abs(error);
+                count++;
+            }
+        }
+    }
+    const rmse = Math.sqrt(totalSquaredError / count);
+    const mae = totalAbsoluteError / count;
+    const metricsCSV = `Metric,Value\nRMSE,${rmse.toFixed(4)}\nMAE,${mae.toFixed(4)}\n`;
+    fs.writeFileSync(path.join(filesDir, 'metrics.csv'), metricsCSV);
+
+
     for (let i = 0; i < activeUsers.length; i++) {
         const jsonVec = JSON.stringify(finalP[i]);
         await getQuery(`UPDATE users SET featureVector = ? WHERE userID = ?`, [
