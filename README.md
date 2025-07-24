@@ -62,7 +62,8 @@ In another terminal:
 cd server
 npm install        # only once
 node index.js
-```bash
+
+```
 ## 🗄️ Database Schema
 
 Here is the database structure used in the project:
