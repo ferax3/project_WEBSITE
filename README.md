@@ -63,3 +63,7 @@ cd server
 npm install        # only once
 node index.js
 
+## 🗄️ Database Schema
+
+Here is the database structure used in the project:
+![Database Schema](photo/Physical Data Model.png)
