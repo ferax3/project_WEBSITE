@@ -68,3 +68,6 @@ node index.js
 
 Here is the database structure used in the project:
 ![Database Schema](photo/Physical%20Data%20Model.png)
+
+
+[Дивитись демо відео](preview/recording-480p.mp4)
