@@ -13,6 +13,8 @@ The application consists of a React.js frontend and a Node.js + MySQL backend. T
 - Responsive and user-friendly interface
 - RESTful API for frontend-backend communication
 
+
+[Watch demo!](https://drive.google.com/file/d/1q_ZAxfjxRo0zZFYyvExB2d3035r8ybui/view?usp=sharing)
 ---
 
 ## 🧰 Technologies Used
@@ -68,6 +70,3 @@ node index.js
 
 Here is the database structure used in the project:
 ![Database Schema](photo/Physical%20Data%20Model.png)
-
-
-[Watch demo!](https://drive.google.com/file/d/1q_ZAxfjxRo0zZFYyvExB2d3035r8ybui/view?usp=sharing)
