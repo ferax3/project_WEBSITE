@@ -70,4 +70,4 @@ Here is the database structure used in the project:
 ![Database Schema](photo/Physical%20Data%20Model.png)
 
 
-[Дивитись демо відео](preview/recording-480p.mp4)
+[Watch demo!](https://drive.google.com/file/d/1q_ZAxfjxRo0zZFYyvExB2d3035r8ybui/view?usp=sharing)
